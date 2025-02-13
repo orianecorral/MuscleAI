@@ -1,4 +1,6 @@
 from django.db import models
+from django.forms import ModelForm
+
 
 class Profile(models.Model):
     GENDER_CHOICES = (
