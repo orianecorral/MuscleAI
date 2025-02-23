@@ -21,6 +21,11 @@ def profile_info(request, first_name):
     }
     return JsonResponse(data)
 
+def profile_show(request):
+    context = {}
+    context ["profiles"] = Profile.objects.all()
+    return render(request, 'profile_show.html', context)
+
 def profile_create_view(request):
     if request.method == "POST":
         form = ProfileForm(request.POST)
@@ -54,3 +59,4 @@ def profile_delete(request, first_name):
 
     context = {'profile': profile}
     return render(request, 'profile_delete.html', context)
+
