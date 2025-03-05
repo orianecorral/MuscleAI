@@ -9,9 +9,11 @@ from django.urls import reverse
 def home_page(request):
     return render(request, 'home.html')
 
+# need to implement either authentification or change url view
 def profile_info(request, first_name):
     profile = get_object_or_404(Profile, first_name=first_name)
-    data = {
+    context = {}
+    context["profiles"] = {
         "first_name": profile.first_name,
         "last_name": profile.last_name,
         "age": profile.age,
@@ -19,7 +21,9 @@ def profile_info(request, first_name):
         "weight": profile.weight,
         "gender": profile.gender,
     }
-    return JsonResponse(data)
+    
+    return render(request, "profile_info.html", context)
+
 
 def profile_show(request):
     context = {}
@@ -45,7 +49,7 @@ def profile_update(request, first_name):
         form = ProfileForm(request.POST, instance=profile)
         if form.is_valid():
             form.save()
-            return redirect(reverse('profile_info', args=[profile.first_name]))  # ✅ Redirection correcte
+            return redirect(reverse('profile_info', args=[profile.first_name])) 
     
     context = {'form': form, 'profile': profile}
     return render(request, 'profile_update.html', context)
@@ -55,7 +59,7 @@ def profile_delete(request, first_name):
 
     if request.method == 'POST':
         profile.delete()
-        return redirect(reverse('home_page'))  # ✅ Redirection vers la home après suppression
+        return redirect(reverse('home_page'))  
 
     context = {'profile': profile}
     return render(request, 'profile_delete.html', context)
