@@ -1,25 +1,28 @@
-"""
-URL configuration for myproject project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/5.1/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from myapp import views
+from myapp.models import Profile, Training
+from myapp.views import profile_info, profile_create_view, profile_delete, profile_update, profile_show, homepage, training_create_view, training_delete, training_info, training_show, training_update
+
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('profile/<str:first_name>/', views.profile_info, name='profile_info')
-    # path('profile/<str:first_name>/', views.profile_info, first_name='profile_info')
+    # path profile
+    path('profile/<str:first_name>/', profile_info, name='profile_info'),
+    path('create_profile/', profile_create_view, name='profile_create'),
+    path('update/<str:first_name>/', profile_update, name='profile_update'),
+    path('delete/<str:first_name>/', profile_delete, name='profile_delete'),
+    path('homepage', homepage, name='homepage'),
+    path('profiles', profile_show, name='profile_show'),
+
+    # path training
+    path('trainings/<int:pk>/', training_info, name='training_info'), 
+    path('create_training/', training_create_view, name='training_create'),
+    path('trainings/update/<int:pk>/', training_update, name='training_update'),
+    path('delete/<int:pk>/', training_delete, name='training_delete'),
+    path('trainings', training_show, name='training_show'),
+
+
+    # path('',include(myproject.urls))
 ]
+
+
