@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Profile info</title>
+  </head>
+  <body>
+    <h1>Profile info</h1>
+    <ul>
+      <li>Prénom : {{ profile.first_name }}</li>
+      <li>Nom : {{ profile.last_name }}</li>
+      <li>Âge : {{ profile.age }}</li>
+      <li>Taille : {{ profile.height }}</li>
+      <li>Poids : {{ profile.weight }}</li>
+      <li>Genre : {{ profile.gender }}</li>
+    </ul>
+
+    <button>
+      <a href="{% url 'profile_update' profile.first_name %}">Modifier</a>
+    </button>
+
+    <button>
+      <a href="{% url 'profile_delete' profile.first_name %}">Supprimer</a>
+    </button>
+  </body>
+</html>
