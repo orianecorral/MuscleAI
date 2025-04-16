@@ -1,69 +1,138 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
-    <!-- Include Tailwind CSS -->
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MuscleAI</title>
     <script src="https://cdn.tailwindcss.com"></script>
-</head>
+  </head>
 
-<body>
+  <body class="bg-black text-white font-sans">
+    <!-- Navbar -->
+    <nav class="bg-black shadow-lg">
+      <div class="max-w-7xl mx-auto px-4">
+        <div class="flex justify-between h-16 items-center">
+          <!-- Logo -->
+          <div class="flex-shrink-0">
+            {% load static %}
+            <img
+              src="{% static 'assets/images/logo_muscleai.png' %}"
+              alt="MuscleAI Logo"
+              class="h-10 w-auto"
+            />
+          </div>
 
-<!-- Navbar -->
-<nav class="bg-gray-800 w-full">
-    <div class="px-4 sm:px-6 lg:px-8">
-        <div class="flex h-16 items-center justify-between">
-            <!-- Logo ou titre -->
-            <div class="text-white font-bold text-xl">
-                MonSite
+          <!-- Navigation -->
+          <div class="hidden sm:flex items-center space-x-4">
+            <a
+              href="{% url 'profile_show' %}"
+              class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition"
+            >
+              Utilisateurs
+            </a>
+            <a
+              href="{% url 'profile_create' %}"
+              class="bg-white text-black px-4 py-2 rounded hover:bg-gray-200 transition"
+            >
+              Créer un compte particulier
+            </a>
+
+            <!-- Notifications -->
+            <button
+              type="button"
+              class="relative text-gray-400 hover:text-white"
+            >
+              <span class="sr-only">Voir les notifications</span>
+              <svg
+                class="w-6 h-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.5"
+                  d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022 23.848 23.848 0 005.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"
+                />
+              </svg>
+            </button>
+
+            <!-- Avatar -->
+            <div class="relative">
+              <button type="button" class="flex rounded-full">
+                <img
+                  class="h-8 w-8 rounded-full"
+                  src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e"
+                  alt="Avatar"
+                />
+              </button>
             </div>
+          </div>
 
-            <!-- Boutons & profil -->
-            <div class="hidden sm:flex items-center space-x-4">
-                <a href="{% url 'profile_show' %}" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
-                    Utilisateurs
-                </a>
-                <a href="{% url 'profile_create' %}" class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600">
-                    Créer un compte particulier
-                </a>
-
-                <button type="button" class="relative rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
-                    <span class="sr-only">View notifications</span>
-                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                            d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022 23.848 23.848 0 005.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
-                    </svg>
-                </button>
-
-                <div class="relative">
-                    <button type="button" class="flex rounded-full bg-gray-800 text-sm focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
-                        <img class="w-8 h-8 rounded-full" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e" alt="">
-                    </button>
-                </div>
-            </div>
-
-            <!-- Mobile hamburger -->
-            <div class="sm:hidden flex items-center">
-                <button type="button" class="text-gray-400 hover:text-white hover:bg-gray-700 p-2 rounded-md">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4 6h16M4 12h16M4 18h16"></path>
-                    </svg>
-                </button>
-            </div>
+          <!-- Mobile menu -->
+          <div class="sm:hidden">
+            <button
+              type="button"
+              class="text-gray-400 hover:text-white hover:bg-gray-800 p-2 rounded-md"
+            >
+              <svg
+                class="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 6h16M4 12h16M4 18h16"
+                ></path>
+              </svg>
+            </button>
+          </div>
         </div>
-    </div>
-</nav>
+      </div>
+    </nav>
 
     <!-- Main Content -->
-    <div class="container mx-auto p-6">
-        <h1 class="text-3xl font-bold">Bienvenue sur la page d'accueil</h1>
-    </div>
+    <main class="container mx-auto px-6 py-12">
+      <h1 class="text-4xl font-bold text-white mb-4">Bienvenue sur MuscleAI</h1>
+      <p class="text-lg text-gray-300">
+        Votre assistant intelligent pour booster vos performances en
+        musculation.
+      </p>
 
-    
+      <h2 class="text-2xl font-bold text-white mb-4">Les entrainements disponibles</h2>
 
-</body>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+        {% for training in trainings %}
+        <div
+          class="bg-gray-800 p-6 rounded-lg shadow hover:shadow-lg transition"
+        >
+          <h2 class="text-2xl font-bold text-white mb-2">
+            {{ training.training_name }}
+          </h2>
+          <p class="text-gray-300 mb-4">{{ training.training_duration }} min</p>
+          <p class="text-gray-300 mb-4">{{ training.training_type }}</p>
+          <p class="text-gray-300 mb-4">{{ training.goal }}</p>
+          <p class="text-gray-300 mb-4">{{ training.level }}</p>
+          <p class="text-gray-300 mb-4">{{ training.training_calories }} calories</p>
 
+
+          <a
+            href="{% url 'training_info' training.id %}"
+            class="text-red-500 hover:underline"
+          >
+            Voir le programme →
+          </a>
+        </div>
+        {% empty %}
+        <p class="text-gray-400">
+          Aucun programme d'entraînement disponible pour le moment.
+        </p>
+        {% endfor %}
+      </div>
+    </main>
+  </body>
 </html>

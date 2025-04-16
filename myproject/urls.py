@@ -18,7 +18,7 @@ urlpatterns = [
     path('trainings/<int:pk>/', training_info, name='training_info'), 
     path('create_training/', training_create_view, name='training_create'),
     path('trainings/update/<int:pk>/', training_update, name='training_update'),
-    path('delete/<int:pk>/', training_delete, name='training_delete'),
+    path('trainings/delete/<int:pk>/', training_delete, name='training_delete'),
     path('trainings', training_show, name='training_show'),
 
 

@@ -7,7 +7,8 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 
 def homepage(request):
-    return render(request, 'home.html')
+    trainings = Training.objects.all()
+    return render(request, 'home.html', {'trainings': trainings})
 
 # Model Views
 # need to implement either authentification or change url view
@@ -36,7 +37,7 @@ def profile_create_view(request):
         form = ProfileForm(request.POST)
         if form.is_valid():
             profile = form.save()
-            return redirect(reverse('profiles/profile_info', args=[profile.first_name]))  
+            return redirect(reverse('profile_info', args=[profile.first_name]))  
     else:
         form = ProfileForm()
 
@@ -50,7 +51,7 @@ def profile_update(request, first_name):
         form = ProfileForm(request.POST, instance=profile)
         if form.is_valid():
             form.save()
-            return redirect(reverse('profiles/profile_info', args=[profile.first_name])) 
+            return redirect(reverse('profile_info', args=[profile.first_name])) 
     
     context = {'form': form, 'profile': profile}
     return render(request, 'profiles/profile_update.html', context)
@@ -87,7 +88,7 @@ def training_create_view(request):
         form = TrainingForm(request.POST)
         if form.is_valid():
             training = form.save()
-            return redirect(reverse('training_info', args=[training.pk]))  # ✅ correction ici
+            return redirect(reverse('training_info', args=[training.pk]))  
     else:
         form = TrainingForm()
 
@@ -100,19 +101,19 @@ def training_update(request, pk):
         form = TrainingForm(request.POST, instance=training)
         if form.is_valid():
             form.save()
-            return redirect(reverse('training_info', args=[training.pk]))  # ✅ nom de la vue
+            return redirect(reverse('training_info', args=[training.pk]))  
     else:
         form = TrainingForm(instance=training)
     
     context = {'form': form, 'training': training}
     return render(request, 'trainings/training_update.html', context)
 
-def training_delete(request, training_name):
-    training = get_object_or_404(Training, training_name=training_name)
+def training_delete(request, pk):
+    training = get_object_or_404(Training, pk=pk)
 
     if request.method == 'POST':
         training.delete()
-        return redirect(reverse('homepage'))  
+        return redirect(reverse('training_show'))  
 
     context = {'training': training}
     return render(request, 'trainings/training_delete.html', context)

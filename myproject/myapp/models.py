@@ -24,6 +24,9 @@ class Training(models.Model):
     training_duration = models.IntegerField()
     training_calories = models.IntegerField()
     training_date = models.DateField()
+    goal= models.TextField()
+    level = models.CharField(max_length=200)
+    
 
     class Meta:
         db_table = 'training'
