@@ -5,11 +5,25 @@ from .models import Profile, Training
 from .forms import ProfileForm, TrainingForm
 from django.shortcuts import render, redirect
 from django.urls import reverse
+import random
+
 
 def homepage(request):
+    from .models import Training
     trainings = Training.objects.all()
-    return render(request, 'home.html', {'trainings': trainings})
 
+    image_list = [f'assets/images/gym{i}.jpg' for i in range(1, 10)]  # gym1.jpg à gym9.jpg
+    # Associer une image aléatoire à chaque training
+    training_data = [
+        {
+            'training': training,
+            'image': random.choice(image_list)
+        } for training in trainings
+    ]
+
+    return render(request, 'home.html', {
+        'training_data': training_data,
+    })
 # Model Views
 # need to implement either authentification or change url view
 def profile_info(request, first_name):
