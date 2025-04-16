@@ -1,40 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Training Info</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body style="background-color: #fce4ec;">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Training Info - MuscleAI</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+
+  <body class="bg-black text-white font-sans">
+    {% load static %}
+    {% include 'partials/header.html' %}
+
     <div class="container mt-5">
-        <h2 class="text-center">Détails du Training</h2>
-        <table class="table table-bordered mt-4">
-            <tr>
-                <th>Training Name</th>
-                <td>{{ training.training_name }}</td>
-            </tr>
-            <tr>
-                <th>Training Type</th>
-                <td>{{ training.training_type }}</td>
-            </tr>
-            <tr>
-                <th>Duration (minutes)</th>
-                <td>{{ training.training_duration }}</td>
-            </tr>
-            <tr>
-                <th>Calories</th>
-                <td>{{ training.training_calories }}</td>
-            </tr>
-            <tr>
-                <th>Date</th>
-                <td>{{ training.training_date }}</td>
-            </tr>
-        </table>
-        <a href="{% url 'training_show' %}" class="btn btn-primary mt-3">⬅ Retour à la liste</a>
-        <a href="{% url 'training_update' training.pk %}" class="btn btn-primary mt-3">⬅ Modifier</a>
-        <a href="{% url 'training_delete' training.pk %}" class="btn btn-primary mt-3">⬅ Supprimer</a>
+      <div class="card bg-dark text-white shadow-lg border border-gray-700">
+        <div class="card-body">
+          <h2 class="card-title text-center mb-4 text-white">
+            {{ training.training_name }}
+          </h2>
 
+          <table class="table table-dark table-striped table-bordered">
+            <tr>
+              <th>Type d'entraînement</th>
+              <td>{{ training.training_type }}</td>
+            </tr>
+            <tr>
+              <th>Durée</th>
+              <td>{{ training.training_duration }} minutes</td>
+            </tr>
+            <tr>
+              <th>Calories brûlées</th>
+              <td>{{ training.training_calories }}</td>
+            </tr>
+            <tr>
+              <th>Date</th>
+              <td>{{ training.training_date }}</td>
+            </tr>
+            <tr>
+              <th>Objectif</th>
+              <td>{{ training.goal }}</td>
+            </tr>
+            <tr>
+              <th>Niveau</th>
+              <td>{{ training.level }}</td>
+            </tr>
+          </table>
 
+          <div class="d-flex justify-content-between mt-4">
+            <a href="{% url 'training_show' %}" class="btn btn-danger">⬅ Retour</a>
+            <div>
+              <a href="{% url 'training_update' training.pk %}" class="btn btn-outline-light me-2">✏️ Modifier</a>
+              <a href="{% url 'training_delete' training.pk %}" class="btn btn-outline-danger">🗑 Supprimer</a>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-</body>
+  </body>
 </html>

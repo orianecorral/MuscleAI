@@ -1,0 +1,58 @@
+{% load static %}
+<nav class="bg-black shadow-lg">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="flex justify-between h-16 items-center">
+      <!-- Logo -->
+      <div class="flex-shrink-0">
+        <img
+          src="{% static 'assets/images/logo_muscleai.png' %}"
+          alt="MuscleAI Logo"
+          class="h-10 w-auto"
+        />
+      </div>
+
+      <!-- Navigation -->
+      <div class="hidden sm:flex items-center space-x-4">
+        <a
+          href="{% url 'profile_show' %}"
+          class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition"
+        >
+          Utilisateurs
+        </a>
+        <a
+          href="{% url 'profile_create' %}"
+          class="bg-white text-black px-4 py-2 rounded hover:bg-gray-200 transition"
+        >
+          Créer un compte particulier
+        </a>
+
+        <!-- Notifications -->
+        <button
+          type="button"
+          class="relative text-gray-400 hover:text-white"
+        >
+          <span class="sr-only">Voir les notifications</span>
+          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="1.5"
+              d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022 23.848 23.848 0 005.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"
+            />
+          </svg>
+        </button>
+
+        <!-- Avatar -->
+        <div class="relative">
+          <button type="button" class="flex rounded-full">
+            <img
+              class="h-8 w-8 rounded-full"
+              src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e"
+              alt="Avatar"
+            />
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>

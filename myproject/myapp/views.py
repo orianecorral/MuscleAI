@@ -9,7 +9,6 @@ import random
 
 
 def homepage(request):
-    from .models import Training
     trainings = Training.objects.all()
 
     image_list = [f'assets/images/gym{i}.jpg' for i in range(1, 10)]  # gym1.jpg à gym9.jpg
@@ -93,9 +92,19 @@ def training_info(request, pk):
 
 
 def training_show(request):
-    context = {}
-    context ["trainings"] = Training.objects.all()
-    return render(request, 'trainings/training_show.html', context)
+    trainings = Training.objects.all()
+    image_list = [f'assets/images/gym{i}.jpg' for i in range(1, 10)]  # gym1.jpg à gym9.jpg
+    # Associer une image aléatoire à chaque training
+    training_data = [
+        {
+            'training': training,
+            'image': random.choice(image_list)
+        } for training in trainings
+    ]
+
+    return render(request, 'trainings/training_show.html', {
+        'training_data': training_data,
+    })
 
 def training_create_view(request):
     if request.method == "POST":
