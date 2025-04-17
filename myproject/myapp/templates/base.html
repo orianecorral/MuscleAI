@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}MuscleAI{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    {% load static %}
+    <link rel="icon" href="{% static 'assets/images/logo_muscleai.png' %}" />
+  </head>
+
+  <body class="bg-black text-white font-sans min-h-screen flex flex-col">
+    {% include 'partials/header.html' %}
+
+    <!-- Contenu principal -->
+    <main class="container mx-auto px-6 py-10 flex-grow">
+      {% block content %}
+      {% endblock %}
+    </main>
+
+    <!-- Footer optionnel -->
+    <footer class="bg-gray-900 text-gray-400 text-center py-4">
+      &copy; {{ now|date:"Y" }} MuscleAI. Tous droits réservés.
+    </footer>
+  </body>
+</html>
