@@ -59,7 +59,7 @@ class TrainingForm(ModelForm):
                 'rows': 3,
                 'class': 'w-full p-2 rounded bg-gray-900 border border-gray-700 text-white'
             }),
-            'level': forms.TextInput(attrs={
+            'level': forms.Select(attrs={
                 'class': 'w-full p-2 rounded bg-gray-900 border border-gray-700 text-white'
             }),
         }

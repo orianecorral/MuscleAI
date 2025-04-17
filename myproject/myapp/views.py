@@ -25,19 +25,9 @@ def homepage(request):
     })
 # Model Views
 # need to implement either authentification or change url view
-def profile_info(request, first_name):
-    profile = get_object_or_404(Profile, first_name=first_name)
-    context = {}
-    context["profile"] = {
-        "first_name": profile.first_name,
-        "last_name": profile.last_name,
-        "age": profile.age,
-        "height": profile.height,
-        "weight": profile.weight,
-        "gender": profile.gender,
-    }
-    
-    return render(request, "profiles/profile_info.html", context)
+def profile_info(request, pk):
+    profile = get_object_or_404(Profile, pk=pk)
+    return render(request, "profiles/profile_info.html", {"profile": profile})
 
 
 def profile_show(request):
@@ -50,27 +40,27 @@ def profile_create_view(request):
         form = ProfileForm(request.POST)
         if form.is_valid():
             profile = form.save()
-            return redirect(reverse('profile_info', args=[profile.first_name]))  
+            return redirect(reverse('profile_info', args=[profile.pk]))  
     else:
         form = ProfileForm()
 
     return render(request, 'profiles/profile_create.html', {'form': form})
 
-def profile_update(request, first_name):
-    profile = get_object_or_404(Profile, first_name=first_name)
+def profile_update(request, pk):
+    profile = get_object_or_404(Profile, pk=pk)
     form = ProfileForm(instance=profile)
     
     if request.method == 'POST':
         form = ProfileForm(request.POST, instance=profile)
         if form.is_valid():
             form.save()
-            return redirect(reverse('profile_info', args=[profile.first_name])) 
+            return redirect(reverse('profile_info', args=[profile.pk])) 
     
     context = {'form': form, 'profile': profile}
     return render(request, 'profiles/profile_update.html', context)
 
-def profile_delete(request, first_name):
-    profile = get_object_or_404(Profile, first_name=first_name)
+def profile_delete(request, pk):
+    profile = get_object_or_404(Profile, pk=pk)
 
     if request.method == 'POST':
         profile.delete()

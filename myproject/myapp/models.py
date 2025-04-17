@@ -31,13 +31,19 @@ class Training(models.Model):
         ("running", "Running"),
         ("streetlifting", "Streetlifting"),
     )
+
+    LEVEL_CHOICES = (
+        ("débutant", "Débutant"),
+        ("intermédiaire", "Intermédiaire"),
+        ("Avancé", "Avancé"),
+    )
     training_name = models.CharField(max_length=200)
     training_type = models.CharField(max_length=200, choices = TYPE_CHOICES)
     training_duration = models.IntegerField()
     training_calories = models.IntegerField()
     training_date = models.DateField()
     goal= models.TextField()
-    level = models.CharField(max_length=200)
+    level = models.CharField(max_length=200, choices = LEVEL_CHOICES)
     
 
     class Meta:

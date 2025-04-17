@@ -12,10 +12,10 @@ urlpatterns = [
     path('', redirect_root),
 
     # path profile
-    path('profile/<str:first_name>/', profile_info, name='profile_info'),
+    path('profile/<int:pk>/', profile_info, name='profile_info'),
     path('create_profile/', profile_create_view, name='profile_create'),
-    path('update/<str:first_name>/', profile_update, name='profile_update'),
-    path('delete/<str:first_name>/', profile_delete, name='profile_delete'),
+    path('update/<int:pk>/', profile_update, name='profile_update'),
+    path('delete/<int:pk>/', profile_delete, name='profile_delete'),
     path('homepage', homepage, name='homepage'),
     path('profiles', profile_show, name='profile_show'),
 

@@ -15,11 +15,11 @@
     </ul>
 
     <button>
-      <a href="{% url 'profile_update' profile.first_name %}">Modifier</a>
+      <a href="{% url 'profile_update' profile.pk %}">Modifier</a>
     </button>
 
     <button>
-      <a href="{% url 'profile_delete' profile.first_name %}">Supprimer</a>
+      <a href="{% url 'profile_delete' profile.pk %}">Supprimer</a>
     </button>
   </body>
 </html>
