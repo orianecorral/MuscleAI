@@ -13,14 +13,27 @@
     {% include 'partials/header.html' %}
     {% include 'partials/sidebar.html' %}
 
-    <div class="ml-64 p-6"> <!-- Décale le contenu à droite -->
-        {% block content %}
-        {% endblock %}
-      </div>
+    <!-- Contenu principal (avec espace pour la sidebar en desktop) -->
+    <main class="flex-grow p-6 lg:ml-64">
+      {% block content %}
+      {% endblock %}
+    </main>
 
-    <!-- Footer optionnel -->
+    <!-- Footer -->
     <footer class="bg-gray-900 text-gray-400 text-center py-4">
       &copy; {{ now|date:"Y" }} MuscleAI. Tous droits réservés.
     </footer>
+
+    <!-- Script pour la sidebar mobile -->
+    <script>
+      const burger = document.getElementById('burger');
+      const mobileSidebar = document.getElementById('mobileSidebar');
+      const closeBurger = document.getElementById('closeBurger');
+
+      if (burger && mobileSidebar && closeBurger) {
+        burger.onclick = () => mobileSidebar.classList.remove('hidden');
+        closeBurger.onclick = () => mobileSidebar.classList.add('hidden');
+      }
+    </script>
   </body>
 </html>

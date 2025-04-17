@@ -5,14 +5,25 @@ from .models import Profile, Training
 from .forms import ProfileForm, TrainingForm
 from django.shortcuts import render, redirect
 from django.urls import reverse
+from django.db.models import Q
+
 import random
 
 
 def homepage(request):
     trainings = Training.objects.all()
+    recherche = None  # Pour afficher le mot-clé si recherche faite
 
-    image_list = [f'assets/images/gym{i}.jpg' for i in range(1, 10)]  # gym1.jpg à gym9.jpg
-    # Associer une image aléatoire à chaque training
+    if request.method == 'POST':
+        recherche = request.POST.get('recherche')
+        if recherche:
+            trainings = Training.objects.filter(
+                Q(training_name__icontains=recherche) |
+                Q(training_type__icontains=recherche) |
+                Q(goal__icontains=recherche)
+            )
+
+    image_list = [f'assets/images/gym{i}.jpg' for i in range(1, 10)]
     training_data = [
         {
             'training': training,
@@ -22,6 +33,7 @@ def homepage(request):
 
     return render(request, 'home.html', {
         'training_data': training_data,
+        'recherche': recherche
     })
 # Model Views
 # need to implement either authentification or change url view
