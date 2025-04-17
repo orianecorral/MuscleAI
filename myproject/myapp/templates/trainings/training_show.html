@@ -1,52 +1,41 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Entraînements - MuscleAI</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-  </head>
+{% extends 'base.html' %}
 
-  <body class="bg-black text-white font-sans">
-    {% load static %}
-    {% include 'partials/header.html' %}
+{% block title %}Liste des Entraînements - MuscleAI{% endblock %}
 
-    <!-- Main Content -->
-    <main class="container mx-auto px-6 py-12">
-      <h1 class="text-4xl font-bold text-white mb-4">Liste des entraînements</h1>
-      <p class="text-lg text-gray-300">
-        Voici tous les programmes d'entraînement disponibles sur MuscleAI.
-      </p>
+{% block content %}
+{% load static %}
+  <h1 class="text-4xl font-bold text-white mb-4">Liste des entraînements</h1>
+  <p class="text-lg text-gray-300">
+    Voici tous les programmes d'entraînement disponibles sur MuscleAI.
+  </p>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
-        {% for item in training_data %}
-          {% with training=item.training image=item.image %}
-            <div class="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition border border-gray-200 text-black">
-              <div class="h-48 bg-gray-300">
-                <img src="{% static image %}" alt="{{ training.training_name }}" class="w-full h-full object-cover" />
-              </div>
-              <div class="p-4 space-y-2">
-                <h3 class="text-lg font-semibold">{{ training.training_name }}</h3>
-                <div class="text-sm text-gray-600">
-                  <p>⏱ {{ training.training_duration }} min</p>
-                  <p>🏋️ {{ training.training_type }}</p>
-                  <p>🎯 {{ training.goal }}</p>
-                  <p>🔥 {{ training.training_calories }} calories</p>
-                  <p>📈 Niveau : {{ training.level }}</p>
-                </div>
-                <a
-                  href="{% url 'training_info' training.id %}"
-                  class="inline-block mt-3 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition font-medium"
-                >
-                  Voir le programme →
-                </a>
-              </div>
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
+    {% for item in training_data %}
+      {% with training=item.training image=item.image %}
+        <div class="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition border border-gray-200 text-black">
+          <div class="h-48 bg-gray-300">
+            <img src="{% static image %}" alt="{{ training.training_name }}" class="w-full h-full object-cover" />
+          </div>
+          <div class="p-4 space-y-2">
+            <h3 class="text-lg font-semibold">{{ training.training_name }}</h3>
+            <div class="text-sm text-gray-600">
+              <p>⏱ {{ training.training_duration }} min</p>
+              <p>🏋️ {{ training.training_type }}</p>
+              <p>🎯 {{ training.goal }}</p>
+              <p>🔥 {{ training.training_calories }} calories</p>
+              <p>📈 Niveau : {{ training.level }}</p>
             </div>
-          {% endwith %}
-        {% empty %}
-          <p class="text-gray-400">Aucun programme d'entraînement disponible pour le moment.</p>
-        {% endfor %}
-      </div>
-    </main>
-  </body>
-</html>
+            <a
+              href="{% url 'training_info' training.id %}"
+              class="inline-block mt-3 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition font-medium"
+            >
+              Voir le programme →
+            </a>
+          </div>
+        </div>
+      {% endwith %}
+    {% empty %}
+      <p class="text-gray-400">Aucun programme d'entraînement disponible pour le moment.</p>
+    {% endfor %}
+  </div>
+{% endblock %}

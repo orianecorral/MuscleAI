@@ -11,12 +11,12 @@
 
   <body class="bg-black text-white font-sans min-h-screen flex flex-col">
     {% include 'partials/header.html' %}
+    {% include 'partials/sidebar.html' %}
 
-    <!-- Contenu principal -->
-    <main class="container mx-auto px-6 py-10 flex-grow">
-      {% block content %}
-      {% endblock %}
-    </main>
+    <div class="ml-64 p-6"> <!-- Décale le contenu à droite -->
+        {% block content %}
+        {% endblock %}
+      </div>
 
     <!-- Footer optionnel -->
     <footer class="bg-gray-900 text-gray-400 text-center py-4">
