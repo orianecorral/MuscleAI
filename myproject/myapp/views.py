@@ -9,31 +9,59 @@ from django.db.models import Q
 
 import random
 
-
 def homepage(request):
     trainings = Training.objects.all()
-    recherche = None  # Pour afficher le mot-clé si recherche faite
+    recherche = ''
+    selected_types = []
+    selected_levels = []
+    print("Training levels dans la DB :", Training.objects.values_list('level', flat=True).distinct())
+
+
+    # choices dynamiques
+    types_list = Training.TYPE_CHOICES
+    levels_list = Training.LEVEL_CHOICES
 
     if request.method == 'POST':
-        recherche = request.POST.get('recherche')
+        recherche = request.POST.get('recherche', '').strip()
+        selected_types = request.POST.getlist('types')
+        selected_levels = request.POST.getlist('levels')
+
+        filters = Q()
+
         if recherche:
-            trainings = Training.objects.filter(
+            filters &= (
                 Q(training_name__icontains=recherche) |
                 Q(training_type__icontains=recherche) |
                 Q(goal__icontains=recherche)
             )
 
+        if selected_types:
+            filters &= Q(training_type__in=selected_types)
+
+        if selected_levels:
+            filters &= Q(level__in=selected_levels)
+
+        trainings = Training.objects.filter(filters)
+        print("Recherche :", recherche)
+        print("Types sélectionnés :", selected_types)
+        print("Niveaux sélectionnés :", selected_levels)
+
     image_list = [f'assets/images/gym{i}.jpg' for i in range(1, 10)]
+    
     training_data = [
         {
             'training': training,
             'image': random.choice(image_list)
         } for training in trainings
     ]
-
+    
     return render(request, 'home.html', {
         'training_data': training_data,
-        'recherche': recherche
+        'recherche': recherche,
+        'selected_types': selected_types,
+        'selected_levels': selected_levels,
+        'types_list': types_list,
+        'levels_list': levels_list,
     })
 # Model Views
 # need to implement either authentification or change url view

@@ -1,70 +1,97 @@
 {% extends 'base.html' %}
-
 {% block title %}Accueil - MuscleAI{% endblock %}
-
 {% block content %}
 {% load static %}
-  <h1 class="text-4xl font-bold text-white mb-4">Bienvenue sur MuscleAI</h1>
-  <p class="text-lg text-gray-300 mb-6">
-    Votre assistant intelligent pour booster vos performances en musculation.
-  </p>
 
-  <!-- 🔍 Barre de recherche -->
-  <form method="POST" class="mb-8">
-    {% csrf_token %}
-    <div class="flex max-w-md">
-      <input
-        type="text"
-        name="recherche"
-        placeholder="Rechercher un training..."
-        class="flex-grow p-2 rounded-l bg-gray-900 border border-gray-700 text-white placeholder-gray-400"
-      />
-      <button
-        type="submit"
-        class="px-4 py-2 bg-red-600 text-white rounded-r hover:bg-red-700 transition"
-      >
-        Rechercher
-      </button>
-    </div>
-  </form>
+<h1 class="text-4xl font-bold text-white mb-4">Bienvenue sur MuscleAI</h1>
+<p class="text-lg text-gray-300 mb-6">
+  Votre assistant intelligent pour booster vos performances en musculation.
+</p>
 
-  <!-- 🔎 Résultat de recherche -->
-  {% if recherche %}
-    <p class="text-gray-300 mb-4">
-      Résultats pour : <span class="font-semibold text-white">"{{ recherche }}"</span>
-    </p>
-  {% endif %}
+<!-- 🔍 Barre de recherche -->
+<form method="POST" class="mb-8">
+  {% csrf_token %}
 
-  <!-- 🏋️ Liste des entraînements -->
-  <h2 class="text-2xl font-bold text-white mb-4">Les entraînements disponibles</h2>
+  <!-- Champ texte -->
+  <div class="flex max-w-md mb-4">
+    <input
+      type="text"
+      name="recherche"
+      placeholder="Rechercher un training..."
+      class="flex-grow p-2 rounded-l bg-gray-900 border border-gray-700 text-white placeholder-gray-400"
+      value="{{ recherche|default:'' }}"
+    />
+    <button
+      type="submit"
+      class="px-4 py-2 bg-red-600 text-white rounded-r hover:bg-red-700 transition"
+    >
+      Rechercher
+    </button>
+  </div>
 
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
-    {% for item in training_data %}
-      {% with training=item.training image=item.image %}
-        <div class="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition border border-gray-200 text-black">
-          <div class="h-48 bg-gray-300">
-            <img src="{% static image %}" alt="{{ training.training_name }}" class="w-full h-full object-cover" />
-          </div>
-          <div class="p-4 space-y-2">
-            <h3 class="text-lg font-semibold">{{ training.training_name }}</h3>
-            <div class="text-sm text-gray-600">
-              <p>⏱ {{ training.training_duration }} min</p>
-              <p>🏋️ {{ training.training_type }}</p>
-              <p>🎯 {{ training.goal }}</p>
-              <p>🔥 {{ training.training_calories }} calories</p>
-              <p>📈 Niveau : {{ training.level }}</p>
-            </div>
-            <a
-              href="{% url 'training_info' training.id %}"
-              class="inline-block mt-3 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition font-medium"
-            >
-              Voir le programme →
-            </a>
-          </div>
-        </div>
-      {% endwith %}
-    {% empty %}
-      <p class="text-gray-400">Aucun programme d'entraînement trouvé.</p>
+  <!-- Filtres par type -->
+  <div class="mb-4">
+    <h3 class="text-white font-semibold mb-2">Type d'entraînement</h3>
+    {% for value, label in types_list %}
+    <label class="inline-flex items-center mr-4 mb-2">
+      <input type="checkbox" name="types" value="{{ value }}" class="form-checkbox text-red-600"
+        {% if value in selected_types %}checked{% endif %}>
+      <span class="ml-2 capitalize text-gray-300">{{ label }}</span>
+    </label>
     {% endfor %}
   </div>
+
+  <!-- Filtres par niveau -->
+  <div class="mb-4">
+    <h3 class="text-white font-semibold mb-2">Niveau</h3>
+    {% for value, label in levels_list %}
+    <label class="inline-flex items-center mr-4 mb-2">
+      <input type="checkbox" name="levels" value="{{ value }}" class="form-checkbox text-red-600"
+        {% if value in selected_levels %}checked{% endif %}>
+      <span class="ml-2 text-gray-300">{{ label }}</span>
+    </label>
+  {% endfor %}
+  </div>
+</form>
+
+<!-- Résultat de recherche -->
+{% if recherche %}
+  <p class="text-gray-300 mb-4">
+    Résultats pour : <span class="font-semibold text-white">"{{ recherche }}"</span>
+  </p>
+{% endif %}
+
+<!-- Liste des trainings -->
+<h2 class="text-2xl font-bold text-white mb-4">Les entraînements disponibles</h2>
+
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
+  {% for item in training_data %}
+    {% with training=item.training image=item.image %}
+      <div class="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition border border-gray-200 text-black">
+        <div class="h-48 bg-gray-300">
+          <img src="{% static image %}" alt="{{ training.training_name }}" class="w-full h-full object-cover" />
+        </div>
+        <div class="p-4 space-y-2">
+          <h3 class="text-lg font-semibold">{{ training.training_name }}</h3>
+          <div class="text-sm text-gray-600">
+            <p>⏱ {{ training.training_duration }} min</p>
+            <p>🏋️ {{ training.training_type }}</p>
+            <p>🎯 {{ training.goal }}</p>
+            <p>🔥 {{ training.training_calories }} calories</p>
+            <p>📈 Niveau : {{ training.level }}</p>
+          </div>
+          <a
+            href="{% url 'training_info' training.id %}"
+            class="inline-block mt-3 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition font-medium"
+          >
+            Voir le programme →
+          </a>
+        </div>
+      </div>
+    {% endwith %}
+  {% empty %}
+    <p class="text-gray-400">Aucun programme d'entraînement trouvé.</p>
+  {% endfor %}
+</div>
+
 {% endblock %}

@@ -20,23 +20,24 @@ class Profile(models.Model):
 
 class Training(models.Model):
     TYPE_CHOICES = (
-        ("musculation", "Muscultation"),
+        ("musculation", "Musculation"),
         ("cardio", "Cardio"),
         ("yoga", "Yoga"),
         ("hiit", "HIIT"),
         ("pilates", "Pilates"),
         ("mobilité", "Mobilité"),
-        ("pilates", "Pilates"),
         ("circuit training", "Circuit Training"),
         ("running", "Running"),
         ("streetlifting", "Streetlifting"),
     )
 
     LEVEL_CHOICES = (
-        ("débutant", "Débutant"),
-        ("intermédiaire", "Intermédiaire"),
+        ("Débutant", "Débutant"),
+        ("Intermédiaire", "Intermédiaire"),
         ("Avancé", "Avancé"),
+        ("Tous niveaux", "Tous niveaux"),
     )
+
     training_name = models.CharField(max_length=200)
     training_type = models.CharField(max_length=200, choices = TYPE_CHOICES)
     training_duration = models.IntegerField()
