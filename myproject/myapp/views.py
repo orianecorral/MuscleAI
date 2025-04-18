@@ -4,6 +4,7 @@ from django.shortcuts import get_object_or_404
 
 from myapp.features.bmi import bmi_category, calculate_bmi
 from myapp.features.calories import calculate_bmr, calculate_tdee
+from myapp.features.combined import run_all_calculations
 from myapp.features.protein import protein_intake
 from .models import Profile, Training
 from .forms import ProfileForm, TrainingForm
@@ -18,37 +19,50 @@ def homepage(request):
     recherche = ''
     selected_types = []
     selected_levels = []
-    print("Training levels dans la DB :", Training.objects.values_list('level', flat=True).distinct())
 
-
-    # choices dynamiques
     types_list = Training.TYPE_CHOICES
     levels_list = Training.LEVEL_CHOICES
 
+    result = None
+    error_message = None
+
     if request.method == 'POST':
-        recherche = request.POST.get('recherche', '').strip()
-        selected_types = request.POST.getlist('types')
-        selected_levels = request.POST.getlist('levels')
+        # 🧠 Formulaire de recherche
+        if 'recherche' in request.POST:
+            recherche = request.POST.get('recherche', '').strip()
+            selected_types = request.POST.getlist('types')
+            selected_levels = request.POST.getlist('levels')
 
-        filters = Q()
+            filters = Q()
 
-        if recherche:
-            filters &= (
-                Q(training_name__icontains=recherche) |
-                Q(training_type__icontains=recherche) |
-                Q(goal__icontains=recherche)
-            )
+            if recherche:
+                filters &= (
+                    Q(training_name__icontains=recherche) |
+                    Q(training_type__icontains=recherche) |
+                    Q(goal__icontains=recherche)
+                )
 
-        if selected_types:
-            filters &= Q(training_type__in=selected_types)
+            if selected_types:
+                filters &= Q(training_type__in=selected_types)
 
-        if selected_levels:
-            filters &= Q(level__in=selected_levels)
+            if selected_levels:
+                filters &= Q(level__in=selected_levels)
 
-        trainings = Training.objects.filter(filters)
-        print("Recherche :", recherche)
-        print("Types sélectionnés :", selected_types)
-        print("Niveaux sélectionnés :", selected_levels)
+            trainings = Training.objects.filter(filters)
+
+        # 🧮 Formulaire calculateur combiné
+        elif 'gender' in request.POST:
+            try:
+                gender = request.POST.get('gender')
+                weight = float(request.POST.get('weight'))
+                height = float(request.POST.get('height'))
+                age = int(request.POST.get('age'))
+                activity = request.POST.get('activity')
+
+                result = run_all_calculations(gender, weight, height, age, activity)
+
+            except (ValueError, TypeError) as e:
+                error_message = f"Erreur dans le formulaire : {str(e)}"
 
     image_list = [f'assets/images/gym{i}.jpg' for i in range(1, 10)]
     
@@ -66,7 +80,11 @@ def homepage(request):
         'selected_levels': selected_levels,
         'types_list': types_list,
         'levels_list': levels_list,
+        'result': result,
+        'error_message': error_message,
     })
+
+
 # Model Views
 # need to implement either authentification or change url view
 def profile_info(request, pk):
@@ -222,5 +240,27 @@ def calories_view(request):
 
     return render(request, 'calculators/calories.html', {
         'calories': calories,
+        'error_message': error_message
+    })
+
+def combined_view(request):
+    result = None
+    error_message = None
+
+    if request.method == 'POST':
+        try:
+            gender = request.POST.get('gender')
+            weight = float(request.POST.get('weight'))
+            height = float(request.POST.get('height'))
+            age = int(request.POST.get('age'))
+            activity = request.POST.get('activity')
+
+            result = run_all_calculations(gender, weight, height, age, activity)
+
+        except (ValueError, TypeError) as e:
+            error_message = f"Erreur dans le formulaire : {str(e)}"
+
+    return render(request, 'calculators/combined.html', {
+        'result': result,
         'error_message': error_message
     })

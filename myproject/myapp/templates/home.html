@@ -8,6 +8,77 @@
   Votre assistant intelligent pour booster vos performances en musculation.
 </p>
 
+<!-- 🧮 Calculateur rapide -->
+<div class="bg-white rounded-xl shadow-md p-6 mb-10 text-gray-800">
+  <h2 class="text-2xl font-bold mb-4">🧮 Calculateur Express</h2>
+  <form method="post" class="grid md:grid-cols-2 gap-4">
+    {% csrf_token %}
+
+    <div>
+      <label for="gender" class="block text-sm font-medium mb-1">Genre</label>
+      <select name="gender" id="gender" required
+              class="w-full px-3 py-2 border border-gray-300 rounded bg-gray-50">
+        <option value="" disabled selected>Genre</option>
+        <option value="male">Homme</option>
+        <option value="female">Femme</option>
+      </select>
+    </div>
+
+    <div>
+      <label for="age" class="block text-sm font-medium mb-1">Âge</label>
+      <input type="number" name="age" id="age" required
+             class="w-full px-3 py-2 border border-gray-300 rounded bg-gray-50">
+    </div>
+
+    <div>
+      <label for="weight" class="block text-sm font-medium mb-1">Poids (kg)</label>
+      <input type="number" name="weight" id="weight" step="0.1" required
+             class="w-full px-3 py-2 border border-gray-300 rounded bg-gray-50">
+    </div>
+
+    <div>
+      <label for="height" class="block text-sm font-medium mb-1">Taille (cm)</label>
+      <input type="number" name="height" id="height" step="1" required
+             class="w-full px-3 py-2 border border-gray-300 rounded bg-gray-50">
+    </div>
+
+    <div class="md:col-span-2">
+      <label for="activity" class="block text-sm font-medium mb-1">Niveau d'activité</label>
+      <select name="activity" id="activity" required
+              class="w-full px-3 py-2 border border-gray-300 rounded bg-gray-50">
+        <option value="" disabled selected>Choisissez un niveau</option>
+        <option value="sedentary">🛋️ Sédentaire</option>
+        <option value="light">🚶 Légèrement actif</option>
+        <option value="moderate">🏃 Modérément actif</option>
+        <option value="active">🏋️ Très actif</option>
+        <option value="very_active">🔥 Extrêmement actif</option>
+      </select>
+    </div>
+
+    <div class="md:col-span-2">
+      <button type="submit"
+              class="w-full mt-2 bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded transition">
+        Calculer mon profil
+      </button>
+    </div>
+
+    {% if result %}
+      <div class="md:col-span-2 bg-indigo-50 p-4 rounded mt-4 text-gray-800">
+        <p class="text-lg font-semibold mb-2">📊 Résultats :</p>
+        <ul class="space-y-1">
+          <li>📏 <strong>IMC :</strong> {{ result.bmi }} ({{ result.bmi_category }})</li>
+          <li>🍗 <strong>Protéines :</strong> {{ result.proteins }} g / jour</li>
+          <li>🔥 <strong>Calories :</strong> {{ result.calories }} kcal / jour</li>
+        </ul>
+      </div>
+    {% elif error_message %}
+      <div class="md:col-span-2 bg-red-100 border border-red-300 text-red-700 p-4 rounded mt-4">
+        {{ error_message }}
+      </div>
+    {% endif %}
+  </form>
+</div>
+
 <!-- 🔍 Barre de recherche -->
 <form method="POST" class="mb-8">
   {% csrf_token %}
@@ -50,7 +121,7 @@
         {% if value in selected_levels %}checked{% endif %}>
       <span class="ml-2 text-gray-300">{{ label }}</span>
     </label>
-  {% endfor %}
+    {% endfor %}
   </div>
 </form>
 

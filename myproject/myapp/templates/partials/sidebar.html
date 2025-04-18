@@ -8,11 +8,19 @@
     <a href="{% url 'profile_create' %}" class="block px-3 py-2 rounded hover:bg-gray-700">➕ Nouveau profil</a>
     <a href="{% url 'training_show' %}" class="block px-3 py-2 rounded hover:bg-gray-700">🏋️ Trainings</a>
     <a href="{% url 'training_create' %}" class="block px-3 py-2 rounded hover:bg-gray-700">➕ Nouveau training</a>
-    <a href="{% url 'bmi' %}" class="block px-3 py-2 rounded hover:bg-gray-700">📏 Calcul BMI</a>
-    <a href="{% url 'protein' %}" class="block px-3 py-2 rounded hover:bg-gray-700">🍗 Besoins en protéines</a>
-    <a href="{% url 'calories' %}" class="block px-3 py-2 rounded hover:bg-gray-700">🔥 Besoins caloriques</a>
 
-
+    <!-- Dropdown Desktop -->
+    <div>
+      <button id="calcToggle" class="w-full text-left px-3 py-2 rounded hover:bg-gray-700 flex justify-between items-center">
+        🧮 Calculatrices
+        <span id="calcArrow">▼</span>
+      </button>
+      <div id="calcMenu" class="mt-2 pl-4 space-y-2 hidden">
+        <a href="{% url 'bmi' %}" class="block px-3 py-2 rounded hover:bg-gray-700">📏 Calcul BMI</a>
+        <a href="{% url 'protein' %}" class="block px-3 py-2 rounded hover:bg-gray-700">🍗 Protéines</a>
+        <a href="{% url 'calories' %}" class="block px-3 py-2 rounded hover:bg-gray-700">🔥 Calories</a>
+      </div>
+    </div>
   </nav>
 </aside>
 
@@ -32,14 +40,23 @@
     <a href="{% url 'profile_create' %}" class="block px-3 py-2 rounded hover:bg-gray-700">➕ Nouveau profil</a>
     <a href="{% url 'training_show' %}" class="block px-3 py-2 rounded hover:bg-gray-700">🏋️ Trainings</a>
     <a href="{% url 'training_create' %}" class="block px-3 py-2 rounded hover:bg-gray-700">➕ Nouveau training</a>
-    <a href="{% url 'bmi' %}" class="block px-3 py-2 rounded hover:bg-gray-700">📏 Calcul BMI</a>
-    <a href="{% url 'protein' %}" class="block px-3 py-2 rounded hover:bg-gray-700">🍗 Besoins en protéines</a>
-    <a href="{% url 'calories' %}" class="block px-3 py-2 rounded hover:bg-gray-700">🔥 Besoins caloriques</a>
 
-
+    <!-- Dropdown Mobile -->
+    <div>
+      <button id="calcToggleMobile" class="w-full text-left px-3 py-2 rounded hover:bg-gray-700 flex justify-between items-center">
+        🧮 Calculatrices
+        <span id="calcArrowMobile">▼</span>
+      </button>
+      <div id="calcMenuMobile" class="mt-2 pl-4 space-y-2 hidden">
+        <a href="{% url 'bmi' %}" class="block px-3 py-2 rounded hover:bg-gray-700">📏 Calcul BMI</a>
+        <a href="{% url 'protein' %}" class="block px-3 py-2 rounded hover:bg-gray-700">🍗 Protéines</a>
+        <a href="{% url 'calories' %}" class="block px-3 py-2 rounded hover:bg-gray-700">🔥 Calories</a>
+      </div>
+    </div>
   </nav>
 </div>
 
+<!-- JS toggle for sidebar & dropdowns -->
 <script>
   const burger = document.getElementById('burger');
   const mobileSidebar = document.getElementById('mobileSidebar');
@@ -47,4 +64,24 @@
 
   burger.onclick = () => mobileSidebar.classList.remove('hidden');
   closeBurger.onclick = () => mobileSidebar.classList.add('hidden');
+
+  // Desktop dropdown
+  const calcToggle = document.getElementById('calcToggle');
+  const calcMenu = document.getElementById('calcMenu');
+  const calcArrow = document.getElementById('calcArrow');
+
+  calcToggle.onclick = () => {
+    calcMenu.classList.toggle('hidden');
+    calcArrow.textContent = calcMenu.classList.contains('hidden') ? '▼' : '▲';
+  };
+
+  // Mobile dropdown
+  const calcToggleMobile = document.getElementById('calcToggleMobile');
+  const calcMenuMobile = document.getElementById('calcMenuMobile');
+  const calcArrowMobile = document.getElementById('calcArrowMobile');
+
+  calcToggleMobile.onclick = () => {
+    calcMenuMobile.classList.toggle('hidden');
+    calcArrowMobile.textContent = calcMenuMobile.classList.contains('hidden') ? '▼' : '▲';
+  };
 </script>
