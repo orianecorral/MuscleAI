@@ -1,6 +1,10 @@
 from django.http import JsonResponse 
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import get_object_or_404
+
+from myapp.features.bmi import bmi_category, calculate_bmi
+from myapp.features.calories import calculate_bmr, calculate_tdee
+from myapp.features.protein import protein_intake
 from .models import Profile, Training
 from .forms import ProfileForm, TrainingForm
 from django.shortcuts import render, redirect
@@ -170,3 +174,53 @@ def training_delete(request, pk):
 
     context = {'training': training}
     return render(request, 'trainings/training_delete.html', context)
+
+def bmi_view(request):
+    bmi = None
+    category = None
+
+    if request.method == 'POST':
+        weight = request.POST.get('weight')
+        height = request.POST.get('height')
+
+        bmi = calculate_bmi(weight, height)
+        category = bmi_category(bmi)
+
+    return render(request, 'calculators/bmi.html', {'bmi': bmi, 'category': category})
+
+def protein_view(request):
+    protein = None
+    error_message = None
+
+    if request.method == 'POST':
+        weight = request.POST.get('weight')
+        activity_level = request.POST.get('activity_level')
+
+        try:
+            protein = protein_intake(float(weight), activity_level)
+        except ValueError as e:
+            error_message = str(e)
+
+    return render(request, 'calculators/protein.html', {'protein': protein, 'error_message': error_message})
+
+def calories_view(request):
+    calories = None
+    error_message = None
+
+    if request.method == 'POST':
+        gender = request.POST.get('gender')
+        weight = request.POST.get('weight')
+        height = request.POST.get('height')
+        age = request.POST.get('age')
+        activity = request.POST.get('activity')
+
+        try:
+            bmr = calculate_bmr(gender, float(weight), float(height), int(age))
+            calories = calculate_tdee(bmr, activity)
+        except ValueError as e:
+            error_message = str(e)
+
+    return render(request, 'calculators/calories.html', {
+        'calories': calories,
+        'error_message': error_message
+    })
