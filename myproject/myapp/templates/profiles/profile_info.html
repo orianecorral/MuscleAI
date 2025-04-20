@@ -1,18 +1,18 @@
 {% extends 'base.html' %}
 
-{% block title %}Profil - {{ profile.first_name }} {{ profile.last_name }}{% endblock %}
+{% block title %}Profil - {{ profile.user.first_name }} {{ profile.user.last_name }}{% endblock %}
 
 {% block content %}
   <div class="max-w-3xl mx-auto">
     <div class="card bg-dark text-white shadow-lg border border-gray-700">
       <div class="card-body p-6">
         <h2 class="text-center mb-4 text-white text-3xl font-bold">
-          Profil de {{ profile.first_name }} {{ profile.last_name }}
+          Profil de {{ profile.user.first_name }} {{ profile.user.last_name }}
         </h2>
 
         <table class="table table-dark table-striped table-bordered">
-          <tr><th>👤 Prénom</th><td>{{ profile.first_name }}</td></tr>
-          <tr><th>👥 Nom</th><td>{{ profile.last_name }}</td></tr>
+          <tr><th>👤 Prénom</th><td>{{ profile.user.first_name }}</td></tr>
+          <tr><th>👥 Nom</th><td>{{ profile.user.last_name }}</td></tr>
           <tr><th>🎂 Âge</th><td>{{ profile.age }} ans</td></tr>
           <tr><th>📏 Taille</th><td>{{ profile.height }} cm</td></tr>
           <tr><th>⚖️ Poids</th><td>{{ profile.weight }} kg</td></tr>
@@ -23,7 +23,7 @@
           <a href="{% url 'profile_show' %}" class="btn btn-danger">⬅ Retour</a>
           <div>
             <a href="{% url 'profile_update' profile.pk %}" class="btn btn-outline-light me-2">✏️ Modifier</a>
-            <a href="{% url 'profile_delete' profile.first_name %}" class="btn btn-outline-danger">🗑 Supprimer</a>
+            <a href="{% url 'profile_delete' profile.pk %}" class="btn btn-outline-danger">🗑 Supprimer</a>
           </div>
         </div>
       </div>

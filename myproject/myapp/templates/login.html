@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Connexion - MuscleAI{% endblock %}
+
+{% block content %}
+  <div class="max-w-md mx-auto bg-gray-800 p-8 rounded-lg shadow-lg mt-10">
+    <h2 class="text-3xl font-bold text-white mb-6 text-center">Connexion</h2>
+
+    <!-- Messages flash (success, error, etc.) -->
+    {% if messages %}
+      <div class="space-y-2 mb-4">
+        {% for message in messages %}
+          <div class="px-4 py-2 rounded text-white {{ message.tags }} {% if message.tags == 'error' %}bg-red-600{% elif message.tags == 'success' %}bg-green-600{% else %}bg-gray-700{% endif %}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <form method="POST" class="space-y-6">
+      {% csrf_token %}
+
+      <!-- Champ username -->
+      <div>
+        <label for="id_username" class="block text-sm font-medium text-white mb-1">Nom d'utilisateur</label>
+        <input
+          type="text"
+          name="username"
+          id="id_username"
+          required
+          class="w-full px-3 py-2 rounded bg-gray-900 text-white border border-gray-600 focus:outline-none focus:ring focus:border-blue-500"
+        />
+      </div>
+
+      <!-- Champ password -->
+      <div>
+        <label for="id_password" class="block text-sm font-medium text-white mb-1">Mot de passe</label>
+        <input
+          type="password"
+          name="password"
+          id="id_password"
+          required
+          class="w-full px-3 py-2 rounded bg-gray-900 text-white border border-gray-600 focus:outline-none focus:ring focus:border-blue-500"
+        />
+      </div>
+
+      <!-- Erreurs de formulaire non liées à un champ -->
+      {% if form.non_field_errors %}
+        {% for error in form.non_field_errors %}
+          <p class="text-sm text-red-500 text-center mt-2">{{ error }}</p>
+        {% endfor %}
+      {% endif %}
+
+      <div class="text-center">
+        <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition font-semibold">
+          Se connecter
+        </button>
+      </div>
+    </form>
+
+    <p class="text-gray-300 text-sm mt-4 text-center">
+      Pas encore de compte ? <a href="{% url 'profile_create' %}" class="text-blue-400 hover:underline">Créer un profil</a>
+    </p>
+  </div>
+{% endblock %}

@@ -1,33 +1,26 @@
 {% extends 'base.html' %}
 
-{% block title %}Profils - MuscleAI{% endblock %}
+{% block title %}Tous les Profils{% endblock %}
 
 {% block content %}
-  <h1 class="text-4xl font-bold text-white mb-4">Liste des profils</h1>
-  <p class="text-lg text-gray-300">
-    Voici tous les utilisateurs enregistrés dans MuscleAI.
-  </p>
+  <div class="max-w-5xl mx-auto">
+    <h2 class="text-3xl font-bold text-white mb-6">Liste des Profils</h2>
 
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
-    {% for profile in profiles %}
-      <div class="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition border border-gray-200 text-black">
-        <div class="p-4 space-y-2">
-          <h3 class="text-lg font-semibold">{{ profile.first_name }} {{ profile.last_name }}</h3>
-          <div class="text-sm text-gray-600">
-            <p>👤 Âge : {{ profile.age }} ans</p>
-            <p>📏 Taille : {{ profile.height }} cm</p>
-            <p>⚖️ Poids : {{ profile.weight }} kg</p>
-            <p>🧬 Genre : {{ profile.get_gender_display }}</p>
-          </div>
-          <!-- Lien vers les détails individuels (optionnel) -->
-          <a href="{% url 'profile_info' profile.pk %}"
-             class="inline-block mt-3 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition font-medium">
-            Voir le profil →
-          </a>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {% for profile in profiles %}
+        <div class="bg-gray-800 p-4 rounded shadow-md border border-gray-700">
+          <h3 class="text-xl font-semibold text-white mb-2">
+            {{ profile.user.first_name }} {{ profile.user.last_name }}
+          </h3>
+          <p class="text-gray-300">🎂 Âge : {{ profile.age }} ans</p>
+          <p class="text-gray-300">📏 Taille : {{ profile.height }} cm</p>
+          <p class="text-gray-300">⚖️ Poids : {{ profile.weight }} kg</p>
+          <p class="text-gray-300">🧬 Genre : {{ profile.get_gender_display }}</p>
+          <a href="{% url 'profile_info' profile.pk %}" class="mt-3 inline-block text-blue-400 hover:underline">Voir le profil →</a>
         </div>
-      </div>
-    {% empty %}
-      <p class="text-gray-400">Aucun profil enregistré pour le moment.</p>
-    {% endfor %}
+      {% empty %}
+        <p class="text-white">Aucun profil trouvé.</p>
+      {% endfor %}
+    </div>
   </div>
 {% endblock %}

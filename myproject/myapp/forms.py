@@ -1,5 +1,7 @@
 from django import forms
 from django.forms import ModelForm
+from django.contrib.auth.forms import AuthenticationForm
+
 from .models import Profile, Training
 
 class ProfileForm(forms.ModelForm):
@@ -34,6 +36,12 @@ class ProfileForm(forms.ModelForm):
                 'class': 'w-full p-2 rounded bg-gray-900 border border-gray-700 text-white'
             }),
         }
+
+class CustomLoginForm(AuthenticationForm):
+    username = forms.CharField(widget=forms.TextInput(attrs={'class': 'input'}))
+    password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'input'}))
+
+
 class TrainingForm(ModelForm):
     class Meta:
         model = Training
