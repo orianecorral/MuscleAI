@@ -1,7 +1,8 @@
 from django.http import JsonResponse 
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import get_object_or_404, render, redirect
-from django.contrib.auth import authenticate, login, logout, get_user_model
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import get_user_model, authenticate, login, logout  # ✅ ajouté ici
 from django.contrib import messages
 from django.urls import reverse
 from django.db.models import Q
@@ -11,13 +12,20 @@ from myapp.features.calories import calculate_bmr, calculate_tdee
 from myapp.features.combined import run_all_calculations
 from myapp.features.protein import protein_intake
 from .models import Profile, Training
-from .forms import ProfileForm, TrainingForm
+from .forms import CustomUserCreationForm, ProfileForm, TrainingForm
 from django.contrib.auth.forms import UserCreationForm
 
 
 import random
 
 User = get_user_model()
+
+
+def profile_by_uuid(request, uuid):
+    profile = get_object_or_404(Profile, uuid=uuid)
+    profile.update_metrics()
+    return render(request, "profiles/profile_info.html", {"profile": profile})
+
 
 # ===================== Pages Générales =====================
 def homepage(request):
@@ -89,15 +97,31 @@ def homepage(request):
 # ===================== Profils =====================
 def profile_info(request, pk):
     profile = get_object_or_404(Profile, pk=pk)
-    return render(request, "profiles/profile_info.html", {"profile": profile})
+    profile.update_metrics()
+
+    is_own_profile = request.user.is_authenticated and request.user.profile == profile
+    pending_requests = profile.pending_requests.all() if is_own_profile else []
+    sent_requests = profile.friend_requests.all() if is_own_profile else []
+
+    return render(request, "profiles/profile_info.html", {
+        "profile": profile,
+        "pending_requests": pending_requests,
+        "sent_requests": sent_requests,
+    })
+
 
 def profile_show(request):
-    context = {"profiles": Profile.objects.all()}
-    return render(request, 'profiles/profile_show.html', context)
+    if request.user.is_authenticated:
+        profiles = Profile.objects.exclude(pk=request.user.profile.pk)
+    else:
+        profiles = Profile.objects.all()
+    return render(request, 'profiles/profile_show.html', {"profiles": profiles})
+
+
 
 def profile_create_view(request):
     if request.method == "POST":
-        user_form = UserCreationForm(request.POST)
+        user_form = CustomUserCreationForm(request.POST)
         profile_form = ProfileForm(request.POST)
 
         if user_form.is_valid() and profile_form.is_valid():
@@ -283,3 +307,47 @@ def logout_view(request):
     logout(request)
     messages.info(request, "Vous avez été déconnecté.")
     return redirect('homepage')  # ← NOM de la route, pas un fichier
+
+
+@login_required
+@login_required
+def send_friend_request(request, pk):
+    to_profile = get_object_or_404(Profile, pk=pk)
+    from_profile = request.user.profile
+
+    if to_profile != from_profile and to_profile not in from_profile.friend_requests.all():
+        from_profile.friend_requests.add(to_profile)  # ✅ CORRECTION ICI
+
+    return redirect('profile_show')
+
+
+@login_required
+def accept_friend_request(request, pk):
+    from_profile = get_object_or_404(Profile, pk=pk)
+    to_profile = request.user.profile
+
+    if from_profile not in to_profile.pending_requests.all():
+        messages.error(request, "Tu n’as pas reçu cette demande d’ami.")
+        return redirect('profile_info', pk=to_profile.pk)
+
+    # Ajout mutuel dans la liste d’amis
+    to_profile.friends.add(from_profile)
+    from_profile.friends.add(to_profile)
+    to_profile.friend_requests.remove(from_profile)
+
+    messages.success(request, f"Tu es maintenant ami(e) avec {from_profile.user.username} !")
+    return redirect('profile_info', pk=to_profile.pk)
+
+
+@login_required
+def reject_friend_request(request, pk):
+    from_profile = get_object_or_404(Profile, pk=pk)
+    to_profile = request.user.profile
+
+    if from_profile not in to_profile.pending_requests.all():
+        messages.error(request, "Tu ne peux pas rejeter cette demande.")
+        return redirect('profile_info', pk=to_profile.pk)
+
+    to_profile.friend_requests.remove(from_profile)
+    messages.info(request, f"Demande de {from_profile.user.username} refusée.")
+    return redirect('profile_info', pk=to_profile.pk)

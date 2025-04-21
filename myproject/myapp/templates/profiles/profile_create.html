@@ -11,32 +11,38 @@
     {{ user_form.non_field_errors }}
     {{ profile_form.non_field_errors }}
 
-    <!-- 🔐 USER FORM (username, password, first/last name) -->
+    <!-- 🔐 USER FORM -->
     <h3 class="text-white text-xl font-semibold">Informations de connexion</h3>
+
     {% for field in user_form %}
-      <div>
-        <label for="{{ field.id_for_label }}" class="block text-sm font-medium mb-1 text-white">
-          {{ field.label }}
-        </label>
-        {{ field }}
-        {% if field.errors %}
-          <p class="text-sm text-red-500 mt-1">{{ field.errors.0 }}</p>
-        {% endif %}
-      </div>
+      {% if field.name in 'username password1 password2' %}
+        <div>
+          <label for="{{ field.id_for_label }}" class="block text-sm font-medium mb-1 text-white">
+            {{ field.label }}
+          </label>
+          {{ field }}
+          {% if field.errors %}
+            <p class="text-sm text-red-500 mt-1">{{ field.errors.0 }}</p>
+          {% endif %}
+        </div>
+      {% endif %}
     {% endfor %}
 
-    <!-- 👤 PROFILE FORM (âge, taille, poids, etc.) -->
+    <!-- 👤 PROFILE FORM -->
     <h3 class="text-white text-xl font-semibold mt-6">Informations personnelles</h3>
+
     {% for field in profile_form %}
-      <div>
-        <label for="{{ field.id_for_label }}" class="block text-sm font-medium mb-1 text-white">
-          {{ field.label }}
-        </label>
-        {{ field }}
-        {% if field.errors %}
-          <p class="text-sm text-red-500 mt-1">{{ field.errors.0 }}</p>
-        {% endif %}
-      </div>
+      {% if field.name in 'age height weight gender' %}
+        <div>
+          <label for="{{ field.id_for_label }}" class="block text-sm font-medium mb-1 text-white">
+            {{ field.label }}
+          </label>
+          {{ field }}
+          {% if field.errors %}
+            <p class="text-sm text-red-500 mt-1">{{ field.errors.0 }}</p>
+          {% endif %}
+        </div>
+      {% endif %}
     {% endfor %}
 
     <div class="text-right">

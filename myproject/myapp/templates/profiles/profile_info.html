@@ -3,30 +3,98 @@
 {% block title %}Profil - {{ profile.user.first_name }} {{ profile.user.last_name }}{% endblock %}
 
 {% block content %}
-  <div class="max-w-3xl mx-auto">
-    <div class="card bg-dark text-white shadow-lg border border-gray-700">
-      <div class="card-body p-6">
-        <h2 class="text-center mb-4 text-white text-3xl font-bold">
-          Profil de {{ profile.user.first_name }} {{ profile.user.last_name }}
-        </h2>
+<div class="max-w-3xl mx-auto py-10 px-4">
+  <div class="bg-gray-900 text-white shadow-lg rounded-lg border border-gray-700 p-6">
+    <h2 class="text-3xl font-bold text-center mb-6">
+      Profil de {{ profile.user.first_name }} {{ profile.user.last_name }}
+    </h2>
 
-        <table class="table table-dark table-striped table-bordered">
-          <tr><th>👤 Prénom</th><td>{{ profile.user.first_name }}</td></tr>
-          <tr><th>👥 Nom</th><td>{{ profile.user.last_name }}</td></tr>
-          <tr><th>🎂 Âge</th><td>{{ profile.age }} ans</td></tr>
-          <tr><th>📏 Taille</th><td>{{ profile.height }} cm</td></tr>
-          <tr><th>⚖️ Poids</th><td>{{ profile.weight }} kg</td></tr>
-          <tr><th>🧬 Genre</th><td>{{ profile.get_gender_display }}</td></tr>
-        </table>
+    <table class="table-auto w-full text-left border-collapse border border-gray-600 mb-6">
+      <tbody>
+        <tr class="border-b border-gray-600"><th class="px-4 py-2">👤 Prénom</th><td class="px-4 py-2">{{ profile.user.first_name }}</td></tr>
+        <tr class="border-b border-gray-600"><th class="px-4 py-2">👥 Nom</th><td class="px-4 py-2">{{ profile.user.last_name }}</td></tr>
+        <tr class="border-b border-gray-600"><th class="px-4 py-2">🎂 Âge</th><td class="px-4 py-2">{{ profile.age }} ans</td></tr>
+        <tr class="border-b border-gray-600"><th class="px-4 py-2">📏 Taille</th><td class="px-4 py-2">{{ profile.height }} cm</td></tr>
+        <tr class="border-b border-gray-600"><th class="px-4 py-2">⚖️ Poids</th><td class="px-4 py-2">{{ profile.weight }} kg</td></tr>
+        <tr class="border-b border-gray-600"><th class="px-4 py-2">🧬 Genre</th><td class="px-4 py-2">{{ profile.get_gender_display }}</td></tr>
+        <tr class="border-b border-gray-600"><th class="px-4 py-2">📊 IMC (BMI)</th><td class="px-4 py-2">{{ profile.bmi|default:"-" }}</td></tr>
+        <tr class="border-b border-gray-600"><th class="px-4 py-2">🍗 Protéines</th><td class="px-4 py-2">{{ profile.daily_protein_requirement|default:"-" }} g/j</td></tr>
+        <tr><th class="px-4 py-2">🔥 Calories</th><td class="px-4 py-2">{{ profile.daily_calories_estimate|default:"-" }} kcal/j</td></tr>
+      </tbody>
+    </table>
 
-        <div class="d-flex justify-content-between mt-4">
-          <a href="{% url 'profile_show' %}" class="btn btn-danger">⬅ Retour</a>
-          <div>
-            <a href="{% url 'profile_update' profile.pk %}" class="btn btn-outline-light me-2">✏️ Modifier</a>
-            <a href="{% url 'profile_delete' profile.pk %}" class="btn btn-outline-danger">🗑 Supprimer</a>
-          </div>
-        </div>
+    {% if profile.friends.all %}
+      <h3 class="text-xl font-semibold mb-2">👫 Amis :</h3>
+      <ul class="list-disc list-inside text-gray-300 mb-6">
+        {% for friend in profile.friends.all %}
+          <li>
+            {{ friend.user.first_name }} {{ friend.user.last_name }}
+            <small class="text-gray-400">({{ friend.user.username }})</small>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="text-sm text-gray-400 mb-6">Aucun ami pour le moment.</p>
+    {% endif %}
+
+    {% if profile == request.user.profile %}
+      <!-- 📩 Demandes d’amis reçues -->
+      {% if profile.pending_requests.all %}
+        <h3 class="mt-6 text-xl font-semibold">📩 Demandes reçues :</h3>
+        <ul class="space-y-2 mb-6">
+          {% for demandeur in profile.pending_requests.all %}
+            <li class="bg-gray-800 p-3 rounded flex justify-between items-center">
+              <span>
+                {{ demandeur.user.first_name }} {{ demandeur.user.last_name }}
+                <small class="text-gray-400">({{ demandeur.user.username }})</small>
+              </span>
+              <div class="flex space-x-2">
+                <form method="POST" action="{% url 'accept_friend_request' demandeur.pk %}">
+                  {% csrf_token %}
+                  <button class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm">✅ Accepter</button>
+                </form>
+                <form method="POST" action="{% url 'reject_friend_request' demandeur.pk %}">
+                  {% csrf_token %}
+                  <button class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm">❌ Refuser</button>
+                </form>
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+
+      <!-- 📤 Demandes envoyées -->
+      <h3 class="mt-6 text-xl font-semibold">📤 Demandes envoyées :</h3>
+      {% if profile.friend_requests.all %}
+        <ul class="list-disc list-inside text-gray-300 mb-6">
+          {% for p in profile.friend_requests.all %}
+            <li>
+              {{ p.user.first_name }} {{ p.user.last_name }}
+              <small class="text-gray-400">({{ p.user.username }})</small>
+              <span class="text-sm text-yellow-400">⏳ En attente</span>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="text-sm text-gray-400 mb-6">Aucune demande envoyée.</p>
+      {% endif %}
+
+      <!-- 🔗 Lien public UUID -->
+      <div class="mt-6 bg-gray-800 text-sm text-gray-300 p-4 rounded">
+        🔗 Lien public de votre profil :
+        <a href="{% url 'profile_by_uuid' profile.uuid %}" class="text-blue-400 hover:underline">
+          {{ request.build_absolute_uri|slice:":-1" }}{% url 'profile_by_uuid' profile.uuid %}
+        </a>
+      </div>
+    {% endif %}
+
+    <div class="flex justify-between items-center mt-8">
+      <a href="{% url 'profile_show' %}" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">⬅ Retour</a>
+      <div class="flex space-x-3">
+        <a href="{% url 'profile_update' profile.pk %}" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded">✏️ Modifier</a>
+        <a href="{% url 'profile_delete' profile.pk %}" class="bg-red-700 hover:bg-red-800 text-white px-4 py-2 rounded">🗑 Supprimer</a>
       </div>
     </div>
   </div>
+</div>
 {% endblock %}

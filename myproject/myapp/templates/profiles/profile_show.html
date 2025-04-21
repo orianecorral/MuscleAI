@@ -16,7 +16,26 @@
           <p class="text-gray-300">📏 Taille : {{ profile.height }} cm</p>
           <p class="text-gray-300">⚖️ Poids : {{ profile.weight }} kg</p>
           <p class="text-gray-300">🧬 Genre : {{ profile.get_gender_display }}</p>
-          <a href="{% url 'profile_info' profile.pk %}" class="mt-3 inline-block text-blue-400 hover:underline">Voir le profil →</a>
+
+          <!-- 🧭 Lien vers profil public -->
+          <a href="{% url 'profile_by_uuid' profile.uuid %}" class="mt-3 inline-block text-blue-400 hover:underline">
+            Voir le profil →
+          </a>
+
+          {% if request.user.is_authenticated and request.user.profile != profile %}
+            {% if profile in request.user.profile.friends.all %}
+              <p class="text-green-500 mt-2">✅ Déjà ami(e)</p>
+            {% elif profile in request.user.profile.friend_requests.all %}
+              <p class="text-yellow-400 mt-2">⏳ Demande envoyée</p>
+            {% else %}
+              <form method="POST" action="{% url 'send_friend_request' profile.pk %}" class="mt-2">
+                {% csrf_token %}
+                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                  ➕ Ajouter en ami
+                </button>
+              </form>
+            {% endif %}
+          {% endif %}
         </div>
       {% empty %}
         <p class="text-white">Aucun profil trouvé.</p>

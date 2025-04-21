@@ -1,68 +1,167 @@
 {% extends 'base.html' %}
-{% block title %}Accueil - MuscleAI{% endblock %}
-{% block content %}
 {% load static %}
+{% block title %}Accueil - MuscleAI{% endblock %}
 
-<h1 class="text-4xl font-bold text-white mb-4">Bienvenue sur MuscleAI</h1>
-<p class="text-lg text-gray-300 mb-6">
+{% block content %}
+
+<!-- ✅ Swiper CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+
+<!-- ✅ Animations CSS -->
+<style>
+  .fade-in {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeIn 1s ease-out forwards;
+  }
+
+  @keyframes fadeIn {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .card-hover {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .card-hover:hover {
+    transform: scale(1.03);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  }
+</style>
+
+<!-- ✅ Accroche -->
+<h1 class="text-4xl font-bold text-white mb-4 fade-in">Bienvenue sur MuscleAI</h1>
+<p class="text-lg text-gray-300 mb-6 fade-in" style="animation-delay: 0.2s;">
   Votre assistant intelligent pour booster vos performances en musculation.
 </p>
 
-<!-- 🧮 Calculateur rapide -->
-<div class="bg-white rounded-xl shadow-md p-6 mb-10 text-gray-800">
-  <h2 class="text-2xl font-bold mb-4">🧮 Calculateur Express</h2>
-  <form method="post" class="grid md:grid-cols-2 gap-4">
-    {% csrf_token %}
+<!-- ✅ Carousel -->
+<div class="mb-16 fade-in" style="animation-delay: 0.4s;">
+  <h2 class="text-2xl text-white font-bold mb-4">🔥 Programmes populaires</h2>
+  <div class="swiper mySwiper">
+    <div class="swiper-wrapper">
+      {% for item in training_data|slice:":10" %}
+        <div class="swiper-slide">
+          <div class="bg-white rounded-xl overflow-hidden shadow-md border text-black max-w-xs mx-auto card-hover">
+            <img src="{% static item.image %}" alt="{{ item.training.training_name }}" class="h-48 w-full object-cover" />
+            <div class="p-4">
+              <h3 class="text-lg font-semibold truncate">{{ item.training.training_name }}</h3>
+              <p class="text-sm text-gray-600 truncate">🔥 {{ item.training.training_calories }} cal - {{ item.training.level }}</p>
+              <a href="{% url 'training_info' item.training.id %}" class="text-red-600 text-sm font-medium mt-2 block">
+                Voir plus →
+              </a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+    <div class="swiper-button-next"></div>
+    <div class="swiper-button-prev"></div>
+  </div>
+</div>
 
-    <div>
-      <label for="gender" class="block text-sm font-medium mb-1">Genre</label>
-      <select name="gender" id="gender" required
-              class="w-full px-3 py-2 border border-gray-300 rounded bg-gray-50">
-        <option value="" disabled selected>Genre</option>
-        <option value="male">Homme</option>
-        <option value="female">Femme</option>
-      </select>
+<!-- ✅ Barre de recherche -->
+<form method="POST" class="text-white mb-10" autocomplete="off">
+  {% csrf_token %}
+  <div class="mb-4">
+    <input type="text" name="recherche" placeholder="Rechercher un training..."
+      class="w-full p-2 rounded bg-gray-900 border border-gray-700 text-white placeholder-gray-400"
+      value="{{ recherche|default:'' }}" />
+    <button type="submit"
+      class="w-full mt-2 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded transition">Rechercher</button>
+  </div>
+
+  <div class="mb-4">
+    <h3 class="font-semibold mb-2">Type d'entraînement</h3>
+    {% for value, label in types_list %}
+      <label class="inline-flex items-center mr-3 mb-2">
+        <input type="checkbox" name="types" value="{{ value }}" class="form-checkbox text-red-600"
+          {% if value in selected_types %}checked{% endif %}>
+        <span class="ml-2">{{ label }}</span>
+      </label>
+    {% endfor %}
+  </div>
+
+  <div class="mb-4">
+    <h3 class="font-semibold mb-2">Niveau</h3>
+    {% for value, label in levels_list %}
+      <label class="inline-flex items-center mr-3 mb-2">
+        <input type="checkbox" name="levels" value="{{ value }}" class="form-checkbox text-red-600"
+          {% if value in selected_levels %}checked{% endif %}>
+        <span class="ml-2">{{ label }}</span>
+      </label>
+    {% endfor %}
+  </div>
+</form>
+
+<!-- ✅ Floating Action Button -->
+<button id="openCalculator"
+  class="fixed bottom-6 right-6 w-14 h-14 bg-indigo-600 text-white rounded-full shadow-lg text-2xl flex items-center justify-center hover:bg-indigo-700 transition z-50"
+  title="Ouvrir le calculateur">
+  🧮
+</button>
+
+<!-- ✅ Calculator Slide Panel -->
+<div id="calculatorPanel"
+  class="fixed bottom-0 left-0 right-0 bg-white text-gray-800 shadow-xl rounded-t-2xl
+  transform transition-transform duration-500 z-40 max-h-[90vh] overflow-y-auto
+  {% if not result and not error_message %}translate-y-full{% endif %}">
+  <div class="p-6">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-2xl font-bold">🧮 Calculateur Express</h2>
+      <button id="closeCalculator" class="text-gray-500 hover:text-red-500 text-2xl font-bold">&times;</button>
     </div>
 
-    <div>
-      <label for="age" class="block text-sm font-medium mb-1">Âge</label>
-      <input type="number" name="age" id="age" required
-             class="w-full px-3 py-2 border border-gray-300 rounded bg-gray-50">
-    </div>
+    <form method="post" class="grid md:grid-cols-2 gap-4">
+      {% csrf_token %}
 
-    <div>
-      <label for="weight" class="block text-sm font-medium mb-1">Poids (kg)</label>
-      <input type="number" name="weight" id="weight" step="0.1" required
-             class="w-full px-3 py-2 border border-gray-300 rounded bg-gray-50">
-    </div>
+      <div>
+        <label for="gender" class="block text-sm font-medium mb-1">Genre</label>
+        <select name="gender" id="gender" required class="w-full px-3 py-2 border border-gray-300 rounded bg-gray-50">
+          <option value="" disabled selected>Genre</option>
+          <option value="male">Homme</option>
+          <option value="female">Femme</option>
+        </select>
+      </div>
 
-    <div>
-      <label for="height" class="block text-sm font-medium mb-1">Taille (cm)</label>
-      <input type="number" name="height" id="height" step="1" required
-             class="w-full px-3 py-2 border border-gray-300 rounded bg-gray-50">
-    </div>
+      <div>
+        <label for="age" class="block text-sm font-medium mb-1">Âge</label>
+        <input type="number" name="age" id="age" required class="w-full px-3 py-2 border border-gray-300 rounded bg-gray-50">
+      </div>
 
-    <div class="md:col-span-2">
-      <label for="activity" class="block text-sm font-medium mb-1">Niveau d'activité</label>
-      <select name="activity" id="activity" required
-              class="w-full px-3 py-2 border border-gray-300 rounded bg-gray-50">
-        <option value="" disabled selected>Choisissez un niveau</option>
-        <option value="sedentary">🛋️ Sédentaire</option>
-        <option value="light">🚶 Légèrement actif</option>
-        <option value="moderate">🏃 Modérément actif</option>
-        <option value="active">🏋️ Très actif</option>
-        <option value="very_active">🔥 Extrêmement actif</option>
-      </select>
-    </div>
+      <div>
+        <label for="weight" class="block text-sm font-medium mb-1">Poids (kg)</label>
+        <input type="number" name="weight" id="weight" step="0.1" required class="w-full px-3 py-2 border border-gray-300 rounded bg-gray-50">
+      </div>
 
-    <div class="md:col-span-2">
-      <button type="submit"
-              class="w-full mt-2 bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded transition">
-        Calculer mon profil
-      </button>
-    </div>
+      <div>
+        <label for="height" class="block text-sm font-medium mb-1">Taille (cm)</label>
+        <input type="number" name="height" id="height" step="1" required class="w-full px-3 py-2 border border-gray-300 rounded bg-gray-50">
+      </div>
 
-    {% if result %}
+      <div class="md:col-span-2">
+        <label for="activity" class="block text-sm font-medium mb-1">Niveau d'activité</label>
+        <select name="activity" id="activity" required class="w-full px-3 py-2 border border-gray-300 rounded bg-gray-50">
+          <option value="" disabled selected>Choisissez un niveau</option>
+          <option value="sedentary">🛋️ Sédentaire</option>
+          <option value="light">🚶 Légèrement actif</option>
+          <option value="moderate">🏃 Modérément actif</option>
+          <option value="active">🏋️ Très actif</option>
+          <option value="very_active">🔥 Extrêmement actif</option>
+        </select>
+      </div>
+
+      <div class="md:col-span-2">
+        <button type="submit"
+          class="w-full mt-2 bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded transition">
+          Calculer mon profil
+        </button>
+      </div>
+
+      {% if result %}
       <div class="md:col-span-2 bg-indigo-50 p-4 rounded mt-4 text-gray-800">
         <p class="text-lg font-semibold mb-2">📊 Résultats :</p>
         <ul class="space-y-1">
@@ -71,98 +170,52 @@
           <li>🔥 <strong>Calories :</strong> {{ result.calories }} kcal / jour</li>
         </ul>
       </div>
-    {% elif error_message %}
+      {% elif error_message %}
       <div class="md:col-span-2 bg-red-100 border border-red-300 text-red-700 p-4 rounded mt-4">
         {{ error_message }}
       </div>
-    {% endif %}
-  </form>
+      {% endif %}
+    </form>
+  </div>
 </div>
 
-<!-- 🔍 Barre de recherche -->
-<form method="POST" class="mb-8">
-  {% csrf_token %}
+<!-- ✅ Swiper JS -->
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script>
+  const swiper = new Swiper(".mySwiper", {
+    slidesPerView: 1.1,
+    spaceBetween: 20,
+    breakpoints: {
+      640: { slidesPerView: 1.5 },
+      768: { slidesPerView: 2.5 },
+      1024: { slidesPerView: 3.5 },
+      1280: { slidesPerView: 4.5 },
+    },
+    navigation: {
+      nextEl: ".swiper-button-next",
+      prevEl: ".swiper-button-prev",
+    },
+    loop: true,
+    grabCursor: true,
+  });
 
-  <!-- Champ texte -->
-  <div class="flex max-w-md mb-4">
-    <input
-      type="text"
-      name="recherche"
-      placeholder="Rechercher un training..."
-      class="flex-grow p-2 rounded-l bg-gray-900 border border-gray-700 text-white placeholder-gray-400"
-      value="{{ recherche|default:'' }}"
-    />
-    <button
-      type="submit"
-      class="px-4 py-2 bg-red-600 text-white rounded-r hover:bg-red-700 transition"
-    >
-      Rechercher
-    </button>
-  </div>
+  const openBtn = document.getElementById('openCalculator');
+  const closeBtn = document.getElementById('closeCalculator');
+  const panel = document.getElementById('calculatorPanel');
 
-  <!-- Filtres par type -->
-  <div class="mb-4">
-    <h3 class="text-white font-semibold mb-2">Type d'entraînement</h3>
-    {% for value, label in types_list %}
-    <label class="inline-flex items-center mr-4 mb-2">
-      <input type="checkbox" name="types" value="{{ value }}" class="form-checkbox text-red-600"
-        {% if value in selected_types %}checked{% endif %}>
-      <span class="ml-2 capitalize text-gray-300">{{ label }}</span>
-    </label>
-    {% endfor %}
-  </div>
+  openBtn.addEventListener('click', () => {
+    panel.classList.remove('translate-y-full');
+  });
 
-  <!-- Filtres par niveau -->
-  <div class="mb-4">
-    <h3 class="text-white font-semibold mb-2">Niveau</h3>
-    {% for value, label in levels_list %}
-    <label class="inline-flex items-center mr-4 mb-2">
-      <input type="checkbox" name="levels" value="{{ value }}" class="form-checkbox text-red-600"
-        {% if value in selected_levels %}checked{% endif %}>
-      <span class="ml-2 text-gray-300">{{ label }}</span>
-    </label>
-    {% endfor %}
-  </div>
-</form>
+  closeBtn.addEventListener('click', () => {
+    panel.classList.add('translate-y-full');
+  });
 
-<!-- Résultat de recherche -->
-{% if recherche %}
-  <p class="text-gray-300 mb-4">
-    Résultats pour : <span class="font-semibold text-white">"{{ recherche }}"</span>
-  </p>
-{% endif %}
-
-<!-- Liste des trainings -->
-<h2 class="text-2xl font-bold text-white mb-4">Les entraînements disponibles</h2>
-
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
-  {% for item in training_data %}
-    {% with training=item.training image=item.image %}
-      <div class="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition border border-gray-200 text-black">
-        <div class="h-48 bg-gray-300">
-          <img src="{% static image %}" alt="{{ training.training_name }}" class="w-full h-full object-cover" />
-        </div>
-        <div class="p-4 space-y-2">
-          <h3 class="text-lg font-semibold">{{ training.training_name }}</h3>
-          <div class="text-sm text-gray-600">
-            <p>⏱ {{ training.training_duration }} min</p>
-            <p>🏋️ {{ training.training_type }}</p>
-            <p>🎯 {{ training.goal }}</p>
-            <p>🔥 {{ training.training_calories }} calories</p>
-            <p>📈 Niveau : {{ training.level }}</p>
-          </div>
-          <a
-            href="{% url 'training_info' training.id %}"
-            class="inline-block mt-3 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition font-medium"
-          >
-            Voir le programme →
-          </a>
-        </div>
-      </div>
-    {% endwith %}
-  {% empty %}
-    <p class="text-gray-400">Aucun programme d'entraînement trouvé.</p>
-  {% endfor %}
-</div>
+  window.addEventListener('click', (e) => {
+    if (!panel.contains(e.target) && !openBtn.contains(e.target)) {
+      panel.classList.add('translate-y-full');
+    }
+  });
+</script>
 
 {% endblock %}

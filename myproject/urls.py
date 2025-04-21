@@ -3,7 +3,7 @@ from django.urls import path, include
 from myapp import views
 from django.shortcuts import redirect
 from myapp.models import Profile, Training
-from myapp.views import bmi_view, calories_view, combined_view, login_view, logout_view, profile_info, profile_create_view, profile_delete, profile_update, profile_show, homepage, protein_view, training_create_view, training_delete, training_info, training_show, training_update
+from myapp.views import accept_friend_request, bmi_view, calories_view, combined_view, login_view, logout_view, profile_info, profile_create_view, profile_delete, profile_update, profile_show, homepage, protein_view, reject_friend_request, send_friend_request, training_create_view, training_delete, training_info, training_show, training_update
 
 def redirect_root(request):
     return redirect('/homepage')
@@ -36,6 +36,13 @@ urlpatterns = [
 
     path('login/', login_view, name='login'),
     path('logout/', logout_view, name='logout'),
+
+    path('profile/<int:pk>/add-friend/', send_friend_request, name='send_friend_request'),
+    path('profile/<int:pk>/accept-friend/', accept_friend_request, name='accept_friend_request'),
+    path('profile/<int:pk>/reject-friend/', reject_friend_request, name='reject_friend_request'),
+
+    path('profile/uuid/<uuid:uuid>/', views.profile_by_uuid, name='profile_by_uuid'),
+
 ]
 
 
