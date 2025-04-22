@@ -11,7 +11,7 @@ from myapp.features.bmi import bmi_category, calculate_bmi
 from myapp.features.calories import calculate_bmr, calculate_tdee
 from myapp.features.combined import run_all_calculations
 from myapp.features.protein import protein_intake
-from .models import Profile, Training
+from .models import FriendRequest, Profile, Training
 from .forms import CustomUserCreationForm, ProfileForm, TrainingForm
 from django.contrib.auth.forms import UserCreationForm
 
@@ -95,27 +95,43 @@ def homepage(request):
     })
 
 # ===================== Profils =====================
+@login_required
 def profile_info(request, pk):
     profile = get_object_or_404(Profile, pk=pk)
-    profile.update_metrics()
 
-    is_own_profile = request.user.is_authenticated and request.user.profile == profile
-    pending_requests = profile.pending_requests.all() if is_own_profile else []
-    sent_requests = profile.friend_requests.all() if is_own_profile else []
+    is_own_profile = request.user.profile == profile
 
-    return render(request, "profiles/profile_info.html", {
-        "profile": profile,
-        "pending_requests": pending_requests,
-        "sent_requests": sent_requests,
-    })
+    received_requests = FriendRequest.objects.filter(to_user=request.user, status='pending') if is_own_profile else None
+    sent_requests = FriendRequest.objects.filter(from_user=request.user, status='pending') if is_own_profile else None
+
+    context = {
+        'profile': profile,
+        'received_requests': received_requests,
+        'sent_requests': sent_requests,
+    }
+
+    return render(request, 'profiles/profile_info.html', context)
 
 
+@login_required
 def profile_show(request):
-    if request.user.is_authenticated:
-        profiles = Profile.objects.exclude(pk=request.user.profile.pk)
-    else:
-        profiles = Profile.objects.all()
-    return render(request, 'profiles/profile_show.html', {"profiles": profiles})
+    user_profile = request.user.profile
+    profiles = Profile.objects.exclude(pk=user_profile.pk)
+
+    # Profils auxquels une demande a déjà été envoyée
+    sent_requests = FriendRequest.objects.filter(from_user=request.user, status='pending')
+    sent_to_ids = [fr.to_user.profile.pk for fr in sent_requests]
+
+    # Profils déjà amis
+    friends_ids = user_profile.friends.all().values_list('pk', flat=True)
+
+    context = {
+        'profiles': profiles,
+        'sent_to_ids': sent_to_ids,
+        'friends_ids': friends_ids,
+    }
+
+    return render(request, 'profiles/profile_show.html', context)
 
 
 
@@ -310,44 +326,62 @@ def logout_view(request):
 
 
 @login_required
-@login_required
 def send_friend_request(request, pk):
     to_profile = get_object_or_404(Profile, pk=pk)
     from_profile = request.user.profile
 
-    if to_profile != from_profile and to_profile not in from_profile.friend_requests.all():
-        from_profile.friend_requests.add(to_profile)  # ✅ CORRECTION ICI
+    if to_profile != from_profile:
+        existing = FriendRequest.objects.filter(
+            from_user=from_profile.user,
+            to_user=to_profile.user,
+            status='pending'
+        ).exists()
 
-    return redirect('profile_show')
+        if not existing:
+            FriendRequest.objects.create(
+                from_user=from_profile.user,
+                to_user=to_profile.user
+            )
+            messages.success(request, f"Demande envoyée à {to_profile.user.username} !")
+        else:
+            messages.info(request, f"Une demande est déjà en attente pour {to_profile.user.username}.")
+
+    return redirect('profile_info', pk=to_profile.pk)
 
 
 @login_required
 def accept_friend_request(request, pk):
-    from_profile = get_object_or_404(Profile, pk=pk)
-    to_profile = request.user.profile
+    friend_request = get_object_or_404(FriendRequest, pk=pk, to_user=request.user)
 
-    if from_profile not in to_profile.pending_requests.all():
-        messages.error(request, "Tu n’as pas reçu cette demande d’ami.")
-        return redirect('profile_info', pk=to_profile.pk)
+    if friend_request.status != 'pending':
+        messages.warning(request, "Cette demande n'est plus valide.")
+        return redirect('profile_info', pk=request.user.profile.pk)
 
-    # Ajout mutuel dans la liste d’amis
-    to_profile.friends.add(from_profile)
+    # Mise à jour de la demande
+    friend_request.status = 'accepted'
+    friend_request.save()
+
+    # Ajout dans les amis
+    from_profile = friend_request.from_user.profile
+    to_profile = friend_request.to_user.profile
+
     from_profile.friends.add(to_profile)
-    to_profile.friend_requests.remove(from_profile)
+    to_profile.friends.add(from_profile)
 
     messages.success(request, f"Tu es maintenant ami(e) avec {from_profile.user.username} !")
     return redirect('profile_info', pk=to_profile.pk)
 
 
+
 @login_required
 def reject_friend_request(request, pk):
-    from_profile = get_object_or_404(Profile, pk=pk)
-    to_profile = request.user.profile
+    friend_request = get_object_or_404(FriendRequest, pk=pk, to_user=request.user)
 
-    if from_profile not in to_profile.pending_requests.all():
-        messages.error(request, "Tu ne peux pas rejeter cette demande.")
-        return redirect('profile_info', pk=to_profile.pk)
+    if friend_request.status != 'pending':
+        messages.warning(request, "Cette demande n'est plus active.")
+    else:
+        friend_request.status = 'rejected'
+        friend_request.save()
+        messages.info(request, f"Demande de {friend_request.from_user.username} refusée.")
 
-    to_profile.friend_requests.remove(from_profile)
-    messages.info(request, f"Demande de {from_profile.user.username} refusée.")
-    return redirect('profile_info', pk=to_profile.pk)
+    return redirect('profile_info', pk=request.user.profile.pk)

@@ -39,21 +39,21 @@
 
     {% if profile == request.user.profile %}
       <!-- 📩 Demandes d’amis reçues -->
-      {% if profile.pending_requests.all %}
+      {% if received_requests %}
         <h3 class="mt-6 text-xl font-semibold">📩 Demandes reçues :</h3>
         <ul class="space-y-2 mb-6">
-          {% for demandeur in profile.pending_requests.all %}
+          {% for req in received_requests %}
             <li class="bg-gray-800 p-3 rounded flex justify-between items-center">
               <span>
-                {{ demandeur.user.first_name }} {{ demandeur.user.last_name }}
-                <small class="text-gray-400">({{ demandeur.user.username }})</small>
+                {{ req.from_user.first_name }} {{ req.from_user.last_name }}
+                <small class="text-gray-400">({{ req.from_user.username }})</small>
               </span>
               <div class="flex space-x-2">
-                <form method="POST" action="{% url 'accept_friend_request' demandeur.pk %}">
+                <form method="POST" action="{% url 'accept_friend_request' req.pk %}">
                   {% csrf_token %}
                   <button class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm">✅ Accepter</button>
                 </form>
-                <form method="POST" action="{% url 'reject_friend_request' demandeur.pk %}">
+                <form method="POST" action="{% url 'reject_friend_request' req.pk %}">
                   {% csrf_token %}
                   <button class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm">❌ Refuser</button>
                 </form>
@@ -65,12 +65,12 @@
 
       <!-- 📤 Demandes envoyées -->
       <h3 class="mt-6 text-xl font-semibold">📤 Demandes envoyées :</h3>
-      {% if profile.friend_requests.all %}
+      {% if sent_requests %}
         <ul class="list-disc list-inside text-gray-300 mb-6">
-          {% for p in profile.friend_requests.all %}
+          {% for req in sent_requests %}
             <li>
-              {{ p.user.first_name }} {{ p.user.last_name }}
-              <small class="text-gray-400">({{ p.user.username }})</small>
+              {{ req.to_user.first_name }} {{ req.to_user.last_name }}
+              <small class="text-gray-400">({{ req.to_user.username }})</small>
               <span class="text-sm text-yellow-400">⏳ En attente</span>
             </li>
           {% endfor %}

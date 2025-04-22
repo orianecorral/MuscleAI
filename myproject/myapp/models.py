@@ -11,6 +11,8 @@ class Profile(models.Model):
     )
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)  # 👈 ajout
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+    friends = models.ManyToManyField('self', symmetrical=True, blank=True)
+
 
     # Infos personnelles
     age = models.IntegerField(null=True, blank=True)
@@ -23,10 +25,6 @@ class Profile(models.Model):
     bmi = models.FloatField(null=True, blank=True)
     daily_protein_requirement = models.FloatField(null=True, blank=True)  # en g
     daily_calories_estimate = models.FloatField(null=True, blank=True)   # en kcal
-
-    # Relations sociales
-    friends = models.ManyToManyField('self', symmetrical=True, blank=True)
-    friend_requests = models.ManyToManyField('self', symmetrical=False, related_name='pending_requests', blank=True)
 
     def __str__(self):
         return f"{self.user.username} ({self.user.first_name} {self.user.last_name})"
@@ -92,3 +90,16 @@ class Training(models.Model):
 
     def __str__(self):
         return self.training_name
+
+class FriendRequest(models.Model):
+    from_user = models.ForeignKey(User, related_name='sent_friend_requests', on_delete=models.CASCADE)
+    to_user = models.ForeignKey(User, related_name='received_friend_requests', on_delete=models.CASCADE)
+    status = models.CharField(max_length=10, choices=[
+        ('pending', 'Pending'),
+        ('accepted', 'Accepted'),
+        ('rejected', 'Rejected'),
+    ], default='pending')
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.from_user.username} → {self.to_user.username} [{self.status}]"

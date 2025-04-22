@@ -22,10 +22,10 @@
             Voir le profil →
           </a>
 
-          {% if request.user.is_authenticated and request.user.profile != profile %}
-            {% if profile in request.user.profile.friends.all %}
+          {% if request.user.is_authenticated %}
+            {% if profile.pk in friends_ids %}
               <p class="text-green-500 mt-2">✅ Déjà ami(e)</p>
-            {% elif profile in request.user.profile.friend_requests.all %}
+            {% elif profile.pk in sent_to_ids %}
               <p class="text-yellow-400 mt-2">⏳ Demande envoyée</p>
             {% else %}
               <form method="POST" action="{% url 'send_friend_request' profile.pk %}" class="mt-2">
