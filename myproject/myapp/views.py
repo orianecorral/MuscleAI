@@ -28,8 +28,12 @@ def profile_by_uuid(request, uuid):
 
 
 # ===================== Pages Générales =====================
+@login_required
 def homepage(request):
-    trainings = Training.objects.all()
+    # 🎯 Séparation des données
+    public_trainings = Training.objects.filter(profile__isnull=True)
+    user_trainings = Training.objects.filter(profile=request.user.profile)
+
     recherche = ''
     selected_types = []
     selected_levels = []
@@ -46,7 +50,7 @@ def homepage(request):
             selected_types = request.POST.getlist('types')
             selected_levels = request.POST.getlist('levels')
 
-            filters = Q()
+            filters = Q(profile__isnull=True)  # filtrer uniquement les trainings publics
 
             if recherche:
                 filters &= (
@@ -61,7 +65,7 @@ def homepage(request):
             if selected_levels:
                 filters &= Q(level__in=selected_levels)
 
-            trainings = Training.objects.filter(filters)
+            public_trainings = Training.objects.filter(filters)
 
         elif 'gender' in request.POST:
             try:
@@ -75,16 +79,18 @@ def homepage(request):
             except (ValueError, TypeError) as e:
                 error_message = f"Erreur dans le formulaire : {str(e)}"
 
+    # 🎨 Ajout d'images aléatoires pour les trainings publics
     image_list = [f'assets/images/gym{i}.jpg' for i in range(1, 10)]
     training_data = [
         {
             'training': training,
             'image': random.choice(image_list)
-        } for training in trainings
+        } for training in public_trainings
     ]
 
     return render(request, 'home.html', {
         'training_data': training_data,
+        'user_trainings': user_trainings,
         'recherche': recherche,
         'selected_types': selected_types,
         'selected_levels': selected_levels,
@@ -93,7 +99,6 @@ def homepage(request):
         'result': result,
         'error_message': error_message,
     })
-
 # ===================== Profils =====================
 @login_required
 def profile_info(request, pk):
@@ -101,11 +106,15 @@ def profile_info(request, pk):
 
     is_own_profile = request.user.profile == profile
 
+    # Récupérer les trainings liés à ce profil
+    trainings = Training.objects.filter(profile=profile)
+
     received_requests = FriendRequest.objects.filter(to_user=request.user, status='pending') if is_own_profile else None
     sent_requests = FriendRequest.objects.filter(from_user=request.user, status='pending') if is_own_profile else None
 
     context = {
         'profile': profile,
+        'trainings': trainings,
         'received_requests': received_requests,
         'sent_requests': sent_requests,
     }
@@ -385,3 +394,34 @@ def reject_friend_request(request, pk):
         messages.info(request, f"Demande de {friend_request.from_user.username} refusée.")
 
     return redirect('profile_info', pk=request.user.profile.pk)
+
+@login_required
+def add_training(request):
+    if request.method == 'POST':
+        form = TrainingForm(request.POST)
+        if form.is_valid():
+            training = form.save(commit=False)
+            training.profile = request.user.profile
+            training.save()
+            return redirect('profile')  # ou vers un dashboard
+    else:
+        form = TrainingForm()
+    return render(request, 'trainings/add_training.html', {'form': form})
+
+@login_required
+def add_training_to_profile(request, training_id):
+    if request.method == 'POST':
+        training_template = get_object_or_404(Training, id=training_id)
+
+        # Crée une copie personnalisée pour l'utilisateur
+        Training.objects.create(
+            profile=request.user.profile,
+            training_name=training_template.training_name,
+            training_type=training_template.training_type,
+            training_duration=training_template.training_duration,
+            training_calories=training_template.training_calories,
+            training_date=training_template.training_date,
+            goal=training_template.goal,
+            level=training_template.level,
+        )
+    return redirect('profile_info', pk=request.user.profile.pk)  # ou autre URL

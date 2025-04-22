@@ -63,6 +63,28 @@
         </ul>
       {% endif %}
 
+      <!-- 🏋️‍♀️ Trainings ajoutés -->
+      {% if trainings %}
+        <h3 class="mt-6 text-xl font-semibold">🏋️‍♀️ Vos entraînements ajoutés :</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-4">
+          {% for training in trainings %}
+            <div class="bg-white rounded-xl overflow-hidden shadow-md border text-black card-hover">
+              <div class="p-4">
+                <h3 class="text-lg font-semibold truncate">{{ training.training_name }}</h3>
+                <p class="text-sm text-gray-600">🔥 {{ training.training_calories }} cal - {{ training.level }}</p>
+                <p class="text-sm text-gray-600">⏱ {{ training.training_duration }} min - 📅 {{ training.training_date }}</p>
+                <p class="text-sm text-gray-600">🏋️ {{ training.training_type }}</p>
+                <a href="{% url 'training_info' training.id %}" class="text-red-600 text-sm font-medium mt-2 block">
+                  Voir plus →
+                </a>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="text-gray-400 mt-6">Vous n'avez pas encore ajouté d'entraînement.</p>
+      {% endif %}
+
       <!-- 📤 Demandes envoyées -->
       <h3 class="mt-6 text-xl font-semibold">📤 Demandes envoyées :</h3>
       {% if sent_requests %}

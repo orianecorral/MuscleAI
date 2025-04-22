@@ -64,10 +64,18 @@ class CustomLoginForm(AuthenticationForm):
     }))
 
 
-class TrainingForm(ModelForm):
+class TrainingForm(forms.ModelForm):
     class Meta:
         model = Training
-        fields = "__all__"
+        fields = [
+            'training_name',
+            'training_type',
+            'training_duration',
+            'training_calories',
+            'training_date',
+            'goal',
+            'level',
+        ]
         widgets = {
             'training_name': forms.TextInput(attrs={
                 'class': 'w-full p-2 rounded bg-black border border-gray-700 text-white',

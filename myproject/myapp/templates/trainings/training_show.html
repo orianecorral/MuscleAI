@@ -4,38 +4,53 @@
 
 {% block content %}
 {% load static %}
-  <h1 class="text-4xl font-bold text-white mb-4">Liste des entraînements</h1>
-  <p class="text-lg text-gray-300">
-    Voici tous les programmes d'entraînement disponibles sur MuscleAI.
-  </p>
 
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
-    {% for item in training_data %}
-      {% with training=item.training image=item.image %}
-        <div class="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition border border-gray-200 text-black">
-          <div class="h-48 bg-gray-300">
-            <img src="{% static image %}" alt="{{ training.training_name }}" class="w-full h-full object-cover" />
-          </div>
-          <div class="p-4 space-y-2">
-            <h3 class="text-lg font-semibold">{{ training.training_name }}</h3>
-            <div class="text-sm text-gray-600">
-              <p>⏱ {{ training.training_duration }} min</p>
-              <p>🏋️ {{ training.training_type }}</p>
-              <p>🎯 {{ training.goal }}</p>
-              <p>🔥 {{ training.training_calories }} calories</p>
-              <p>📈 Niveau : {{ training.level }}</p>
-            </div>
-            <a
-              href="{% url 'training_info' training.id %}"
-              class="inline-block mt-3 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition font-medium"
-            >
-              Voir le programme →
-            </a>
-          </div>
+<h1 class="text-4xl font-bold text-white mb-4">Liste des entraînements</h1>
+<p class="text-lg text-gray-300">
+  Voici tous les programmes d'entraînement disponibles sur MuscleAI.
+</p>
+
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
+  {% for item in training_data %}
+    {% with training=item.training image=item.image %}
+      <div class="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition border border-gray-200 text-black">
+        <div class="h-48 bg-gray-300">
+          <img src="{% static image %}" alt="{{ training.training_name }}" class="w-full h-full object-cover" />
         </div>
-      {% endwith %}
-    {% empty %}
-      <p class="text-gray-400">Aucun programme d'entraînement disponible pour le moment.</p>
-    {% endfor %}
-  </div>
+        <div class="p-4 space-y-2">
+          <h3 class="text-lg font-semibold">{{ training.training_name }}</h3>
+          <div class="text-sm text-gray-600">
+            <p>⏱ {{ training.training_duration }} min</p>
+            <p>🏋️ {{ training.training_type }}</p>
+            <p>🎯 {{ training.goal }}</p>
+            <p>🔥 {{ training.training_calories }} calories</p>
+            <p>📈 Niveau : {{ training.level }}</p>
+          </div>
+
+          <a
+            href="{% url 'training_info' training.id %}"
+            class="inline-block mt-3 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition font-medium"
+          >
+            Voir le programme →
+          </a>
+
+          {% if user.is_authenticated %}
+            <form method="post" action="{% url 'add_training_to_profile' training.id %}">
+              {% csrf_token %}
+              <button
+                type="submit"
+                class="inline-block mt-2 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition font-medium"
+              >
+                ➕ Ajouter à mon profil
+              </button>
+            </form>
+          {% endif %}
+        </div>
+      </div>
+    {% endwith %}
+  {% empty %}
+    <p class="text-gray-400">Aucun programme d'entraînement disponible pour le moment.</p>
+  {% endfor %}
+</div>
+
 {% endblock %}

@@ -74,7 +74,7 @@ class Training(models.Model):
         ("Avancé", "Avancé"),
         ("Tous niveaux", "Tous niveaux"),
     )
-
+    profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="trainings", null=True, blank=True)
     training_name = models.CharField(max_length=200)
     training_type = models.CharField(max_length=200, choices = TYPE_CHOICES)
     training_duration = models.IntegerField()
@@ -86,7 +86,7 @@ class Training(models.Model):
 
     class Meta:
         db_table = 'training'
-        managed = False  # Important pour dire à Django de ne pas toucher la table
+        managed = True  # Important pour dire à Django de ne pas toucher la table
 
     def __str__(self):
         return self.training_name
