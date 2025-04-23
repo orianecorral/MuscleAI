@@ -3,43 +3,41 @@
 {% block title %}Tous les Profils{% endblock %}
 
 {% block content %}
-  <div class="max-w-5xl mx-auto">
-    <h2 class="text-3xl font-bold text-white mb-6">Liste des Profils</h2>
+<div class="max-w-5xl mx-auto">
+  <h2 class="text-3xl font-bold text-white mb-6">Liste des Profils</h2>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for profile in profiles %}
+      <div class="bg-gray-800 p-4 rounded shadow-md border border-gray-700">
+        <h3 class="text-xl font-semibold text-white mb-2">
+          {{ profile.user.first_name }} {{ profile.user.last_name }}
+        </h3>
+        <p class="text-gray-300">🎂 Âge : {{ profile.age }} ans</p>
+        <p class="text-gray-300">📏 Taille : {{ profile.height }} cm</p>
+        <p class="text-gray-300">⚖️ Poids : {{ profile.weight }} kg</p>
+        <p class="text-gray-300">🧬 Genre : {{ profile.get_gender_display }}</p>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {% for profile in profiles %}
-        <div class="bg-gray-800 p-4 rounded shadow-md border border-gray-700">
-          <h3 class="text-xl font-semibold text-white mb-2">
-            {{ profile.user.first_name }} {{ profile.user.last_name }}
-          </h3>
-          <p class="text-gray-300">🎂 Âge : {{ profile.age }} ans</p>
-          <p class="text-gray-300">📏 Taille : {{ profile.height }} cm</p>
-          <p class="text-gray-300">⚖️ Poids : {{ profile.weight }} kg</p>
-          <p class="text-gray-300">🧬 Genre : {{ profile.get_gender_display }}</p>
+        <a href="{% url 'profile_info' profile.uuid %}" class="mt-3 inline-block text-blue-400 hover:underline">
+          Voir le profil →
+        </a>
 
-          <!-- 🧭 Lien vers profil public -->
-          <a href="{% url 'profile_by_uuid' profile.uuid %}" class="mt-3 inline-block text-blue-400 hover:underline">
-            Voir le profil →
-          </a>
-
-          {% if request.user.is_authenticated %}
-            {% if profile.pk in friends_ids %}
-              <p class="text-green-500 mt-2">✅ Déjà ami(e)</p>
-            {% elif profile.pk in sent_to_ids %}
-              <p class="text-yellow-400 mt-2">⏳ Demande envoyée</p>
-            {% else %}
-              <form method="POST" action="{% url 'send_friend_request' profile.pk %}" class="mt-2">
-                {% csrf_token %}
-                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-                  ➕ Ajouter en ami
-                </button>
-              </form>
-            {% endif %}
+        {% if request.user.is_authenticated %}
+          {% if profile.uuid in friends_uuids %}
+            <p class="text-green-500 mt-2">✅ Déjà ami(e)</p>
+          {% elif profile.uuid in sent_to_uuids %}
+            <p class="text-yellow-400 mt-2">⏳ Demande envoyée</p>
+          {% else %}
+            <form method="POST" action="{% url 'send_friend_request' profile.uuid %}" class="mt-2">
+              {% csrf_token %}
+              <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                ➕ Ajouter en ami
+              </button>
+            </form>
           {% endif %}
-        </div>
-      {% empty %}
-        <p class="text-white">Aucun profil trouvé.</p>
-      {% endfor %}
-    </div>
+        {% endif %}
+      </div>
+    {% empty %}
+      <p class="text-white">Aucun profil trouvé.</p>
+    {% endfor %}
   </div>
+</div>
 {% endblock %}

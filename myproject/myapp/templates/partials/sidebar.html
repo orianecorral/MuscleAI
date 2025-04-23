@@ -16,20 +16,15 @@
         <span id="calcArrow">▼</span>
       </button>
       <div id="calcMenu" class="mt-2 pl-4 space-y-2 hidden">
-        <a href="{% url 'bmi' %}" class="block px-3 py-2 rounded hover:bg-gray-700">📏 Calcul BMI</a>
-        <a href="{% url 'protein' %}" class="block px-3 py-2 rounded hover:bg-gray-700">🍗 Protéines</a>
-        <a href="{% url 'calories' %}" class="block px-3 py-2 rounded hover:bg-gray-700">🔥 Calories</a>
+        <a href="{% url 'bmi_calculator' %}" class="block px-3 py-2 rounded hover:bg-gray-700">📏 Calcul BMI</a>
+        <a href="{% url 'protein_calculator' %}" class="block px-3 py-2 rounded hover:bg-gray-700">🍗 Protéines</a>
+        <a href="{% url 'calories_calculator' %}" class="block px-3 py-2 rounded hover:bg-gray-700">🔥 Calories</a>
       </div>
     </div>
   </nav>
 </aside>
 
-<!-- Burger button (mobile) -->
-<div class="lg:hidden fixed top-4 left-4 z-50">
-  <button id="burger" class="text-white focus:outline-none text-3xl">☰</button>
-</div>
-
-<!-- Mobile menu -->
+<!-- Mobile Sidebar -->
 <div id="mobileSidebar" class="hidden fixed inset-0 bg-gray-900 text-white z-40 p-6">
   <div class="flex justify-between items-center mb-6">
     <h2 class="text-2xl font-bold">Menu</h2>
@@ -48,9 +43,9 @@
         <span id="calcArrowMobile">▼</span>
       </button>
       <div id="calcMenuMobile" class="mt-2 pl-4 space-y-2 hidden">
-        <a href="{% url 'bmi' %}" class="block px-3 py-2 rounded hover:bg-gray-700">📏 Calcul BMI</a>
-        <a href="{% url 'protein' %}" class="block px-3 py-2 rounded hover:bg-gray-700">🍗 Protéines</a>
-        <a href="{% url 'calories' %}" class="block px-3 py-2 rounded hover:bg-gray-700">🔥 Calories</a>
+        <a href="{% url 'bmi_calculator' %}" class="block px-3 py-2 rounded hover:bg-gray-700">📏 Calcul BMI</a>
+        <a href="{% url 'protein_calculator' %}" class="block px-3 py-2 rounded hover:bg-gray-700">🍗 Protéines</a>
+        <a href="{% url 'calories_calculator' %}" class="block px-3 py-2 rounded hover:bg-gray-700">🔥 Calories</a>
       </div>
     </div>
   </nav>
@@ -62,26 +57,32 @@
   const mobileSidebar = document.getElementById('mobileSidebar');
   const closeBurger = document.getElementById('closeBurger');
 
-  burger.onclick = () => mobileSidebar.classList.remove('hidden');
-  closeBurger.onclick = () => mobileSidebar.classList.add('hidden');
+  if (burger && mobileSidebar && closeBurger) {
+    burger.onclick = () => mobileSidebar.classList.remove('hidden');
+    closeBurger.onclick = () => mobileSidebar.classList.add('hidden');
+  }
 
   // Desktop dropdown
   const calcToggle = document.getElementById('calcToggle');
   const calcMenu = document.getElementById('calcMenu');
   const calcArrow = document.getElementById('calcArrow');
 
-  calcToggle.onclick = () => {
-    calcMenu.classList.toggle('hidden');
-    calcArrow.textContent = calcMenu.classList.contains('hidden') ? '▼' : '▲';
-  };
+  if (calcToggle && calcMenu && calcArrow) {
+    calcToggle.onclick = () => {
+      calcMenu.classList.toggle('hidden');
+      calcArrow.textContent = calcMenu.classList.contains('hidden') ? '▼' : '▲';
+    };
+  }
 
   // Mobile dropdown
   const calcToggleMobile = document.getElementById('calcToggleMobile');
   const calcMenuMobile = document.getElementById('calcMenuMobile');
   const calcArrowMobile = document.getElementById('calcArrowMobile');
 
-  calcToggleMobile.onclick = () => {
-    calcMenuMobile.classList.toggle('hidden');
-    calcArrowMobile.textContent = calcMenuMobile.classList.contains('hidden') ? '▼' : '▲';
-  };
+  if (calcToggleMobile && calcMenuMobile && calcArrowMobile) {
+    calcToggleMobile.onclick = () => {
+      calcMenuMobile.classList.toggle('hidden');
+      calcArrowMobile.textContent = calcMenuMobile.classList.contains('hidden') ? '▼' : '▲';
+    };
+  }
 </script>

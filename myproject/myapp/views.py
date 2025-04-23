@@ -101,12 +101,15 @@ def homepage(request):
     })
 # ===================== Profils =====================
 @login_required
-def profile_info(request, pk):
-    profile = get_object_or_404(Profile, pk=pk)
+def my_profile_view(request):
+    profile = request.user.profile
+    return redirect('profile_info', uuid=profile.uuid)
 
-    is_own_profile = request.user.profile == profile
+@login_required
+def profile_info_view(request, uuid):
+    profile = get_object_or_404(Profile, uuid=uuid)
+    is_own_profile = request.user.profile.uuid == profile.uuid
 
-    # Récupérer les trainings liés à ce profil
     trainings = Training.objects.filter(profile=profile)
 
     received_requests = FriendRequest.objects.filter(to_user=request.user, status='pending') if is_own_profile else None
@@ -117,45 +120,63 @@ def profile_info(request, pk):
         'trainings': trainings,
         'received_requests': received_requests,
         'sent_requests': sent_requests,
+        'is_own_profile': is_own_profile,
     }
-
     return render(request, 'profiles/profile_info.html', context)
 
+@login_required
+def profile_update(request, uuid):
+    profile = get_object_or_404(Profile, uuid=uuid)
+    form = ProfileForm(instance=profile)
+
+    if request.method == 'POST':
+        form = ProfileForm(request.POST, instance=profile)
+        if form.is_valid():
+            form.save()
+            return redirect('profile_info', uuid=profile.uuid)
+
+    return render(request, 'profiles/profile_update.html', {'form': form, 'profile': profile})
+
+@login_required
+def profile_delete(request, uuid):
+    profile = get_object_or_404(Profile, uuid=uuid)
+
+    if request.method == 'POST':
+        profile.delete()
+        return redirect('homepage')
+
+    return render(request, 'profiles/profile_delete.html', {'profile': profile})
 
 @login_required
 def profile_show(request):
     user_profile = request.user.profile
-    profiles = Profile.objects.exclude(pk=user_profile.pk)
+    profiles = Profile.objects.exclude(uuid=user_profile.uuid)
 
-    # Profils auxquels une demande a déjà été envoyée
     sent_requests = FriendRequest.objects.filter(from_user=request.user, status='pending')
-    sent_to_ids = [fr.to_user.profile.pk for fr in sent_requests]
+    sent_to_uuids = [fr.to_user.profile.uuid for fr in sent_requests]
 
-    # Profils déjà amis
-    friends_ids = user_profile.friends.all().values_list('pk', flat=True)
+    friends_uuids = user_profile.friends.all().values_list('uuid', flat=True)
 
     context = {
         'profiles': profiles,
-        'sent_to_ids': sent_to_ids,
-        'friends_ids': friends_ids,
+        'sent_to_uuids': sent_to_uuids,
+        'friends_uuids': friends_uuids,
     }
 
     return render(request, 'profiles/profile_show.html', context)
 
-
-
+@csrf_exempt
 def profile_create_view(request):
     if request.method == "POST":
         user_form = CustomUserCreationForm(request.POST)
         profile_form = ProfileForm(request.POST)
 
         if user_form.is_valid() and profile_form.is_valid():
-            user = user_form.save()  # plus besoin de set_password !
+            user = user_form.save()
             profile = profile_form.save(commit=False)
             profile.user = user
             profile.save()
-
-            return redirect(reverse('profile_info', args=[profile.pk]))
+            return redirect('profile_info', uuid=profile.uuid)
     else:
         user_form = UserCreationForm()
         profile_form = ProfileForm()
@@ -165,34 +186,74 @@ def profile_create_view(request):
         'profile_form': profile_form,
     })
 
-def profile_update(request, pk):
-    profile = get_object_or_404(Profile, pk=pk)
-    form = ProfileForm(instance=profile)
+@login_required
+def send_friend_request(request, uuid):
+    to_profile = get_object_or_404(Profile, uuid=uuid)
+    from_profile = request.user.profile
 
-    if request.method == 'POST':
-        form = ProfileForm(request.POST, instance=profile)
-        if form.is_valid():
-            form.save()
-            return redirect(reverse('profile_info', args=[profile.pk]))
+    if to_profile != from_profile:
+        existing = FriendRequest.objects.filter(
+            from_user=from_profile.user,
+            to_user=to_profile.user,
+            status='pending'
+        ).exists()
 
-    return render(request, 'profiles/profile_update.html', {'form': form, 'profile': profile})
+        if not existing:
+            FriendRequest.objects.create(
+                from_user=from_profile.user,
+                to_user=to_profile.user
+            )
+            messages.success(request, f"Demande envoyée à {to_profile.user.username} !")
+        else:
+            messages.info(request, f"Une demande est déjà en attente pour {to_profile.user.username}.")
 
-def profile_delete(request, pk):
-    profile = get_object_or_404(Profile, pk=pk)
+    return redirect('profile_info', uuid=to_profile.uuid)
 
-    if request.method == 'POST':
-        profile.delete()
-        return redirect(reverse('homepage'))
+@login_required
+def accept_friend_request(request, pk):
+    friend_request = get_object_or_404(FriendRequest, pk=pk, to_user=request.user)
 
-    return render(request, 'profiles/profile_delete.html', {'profile': profile})
+    if friend_request.status != 'pending':
+        messages.warning(request, "Cette demande n'est plus valide.")
+    else:
+        friend_request.status = 'accepted'
+        friend_request.save()
+
+        from_profile = friend_request.from_user.profile
+        to_profile = friend_request.to_user.profile
+
+        from_profile.friends.add(to_profile)
+        to_profile.friends.add(from_profile)
+
+        messages.success(request, f"Tu es maintenant ami(e) avec {from_profile.user.username} !")
+
+    return redirect('profile_info', uuid=request.user.profile.uuid)
+
+@login_required
+def reject_friend_request(request, pk):
+    friend_request = get_object_or_404(FriendRequest, pk=pk, to_user=request.user)
+
+    if friend_request.status != 'pending':
+        messages.warning(request, "Cette demande n'est plus active.")
+    else:
+        friend_request.status = 'rejected'
+        friend_request.save()
+        messages.info(request, f"Demande de {friend_request.from_user.username} refusée.")
+
+    return redirect('profile_info', uuid=request.user.profile.uuid)
 
 # ===================== Trainings =====================
 def training_info(request, pk):
     training = get_object_or_404(Training, pk=pk)
     return render(request, 'trainings/training_info.html', {"training": training})
 
+@login_required
 def training_show(request):
-    trainings = Training.objects.all()
+    trainings = Training.objects.filter(profile__isnull=True)
+    user_profile = request.user.profile
+
+    user_training_ids = Training.objects.filter(profile=user_profile).values_list('training_name', flat=True)
+
     image_list = [f'assets/images/gym{i}.jpg' for i in range(1, 10)]
     training_data = [
         {
@@ -200,7 +261,12 @@ def training_show(request):
             'image': random.choice(image_list)
         } for training in trainings
     ]
-    return render(request, 'trainings/training_show.html', {'training_data': training_data})
+
+    return render(request, 'trainings/training_show.html', {
+        'training_data': training_data,
+        'user_training_names': list(user_training_ids),
+    })
+
 
 def training_create_view(request):
     if request.method == "POST":
@@ -335,67 +401,6 @@ def logout_view(request):
 
 
 @login_required
-def send_friend_request(request, pk):
-    to_profile = get_object_or_404(Profile, pk=pk)
-    from_profile = request.user.profile
-
-    if to_profile != from_profile:
-        existing = FriendRequest.objects.filter(
-            from_user=from_profile.user,
-            to_user=to_profile.user,
-            status='pending'
-        ).exists()
-
-        if not existing:
-            FriendRequest.objects.create(
-                from_user=from_profile.user,
-                to_user=to_profile.user
-            )
-            messages.success(request, f"Demande envoyée à {to_profile.user.username} !")
-        else:
-            messages.info(request, f"Une demande est déjà en attente pour {to_profile.user.username}.")
-
-    return redirect('profile_info', pk=to_profile.pk)
-
-
-@login_required
-def accept_friend_request(request, pk):
-    friend_request = get_object_or_404(FriendRequest, pk=pk, to_user=request.user)
-
-    if friend_request.status != 'pending':
-        messages.warning(request, "Cette demande n'est plus valide.")
-        return redirect('profile_info', pk=request.user.profile.pk)
-
-    # Mise à jour de la demande
-    friend_request.status = 'accepted'
-    friend_request.save()
-
-    # Ajout dans les amis
-    from_profile = friend_request.from_user.profile
-    to_profile = friend_request.to_user.profile
-
-    from_profile.friends.add(to_profile)
-    to_profile.friends.add(from_profile)
-
-    messages.success(request, f"Tu es maintenant ami(e) avec {from_profile.user.username} !")
-    return redirect('profile_info', pk=to_profile.pk)
-
-
-
-@login_required
-def reject_friend_request(request, pk):
-    friend_request = get_object_or_404(FriendRequest, pk=pk, to_user=request.user)
-
-    if friend_request.status != 'pending':
-        messages.warning(request, "Cette demande n'est plus active.")
-    else:
-        friend_request.status = 'rejected'
-        friend_request.save()
-        messages.info(request, f"Demande de {friend_request.from_user.username} refusée.")
-
-    return redirect('profile_info', pk=request.user.profile.pk)
-
-@login_required
 def add_training(request):
     if request.method == 'POST':
         form = TrainingForm(request.POST)
@@ -410,18 +415,28 @@ def add_training(request):
 
 @login_required
 def add_training_to_profile(request, training_id):
-    if request.method == 'POST':
-        training_template = get_object_or_404(Training, id=training_id)
+    user_profile = request.user.profile
 
-        # Crée une copie personnalisée pour l'utilisateur
+    # training public (non assigné à un profil)
+    public_training = get_object_or_404(Training, id=training_id, profile__isnull=True)
+
+    # Empêcher l’ajout en double (basé sur le nom du training déjà dans le profil)
+    already_added = Training.objects.filter(profile=user_profile, training_name=public_training.training_name).exists()
+
+    if already_added:
+        messages.warning(request, "Ce training est déjà dans votre profil.")
+    else:
+        # Créer une copie liée à l'utilisateur
         Training.objects.create(
-            profile=request.user.profile,
-            training_name=training_template.training_name,
-            training_type=training_template.training_type,
-            training_duration=training_template.training_duration,
-            training_calories=training_template.training_calories,
-            training_date=training_template.training_date,
-            goal=training_template.goal,
-            level=training_template.level,
+            training_name=public_training.training_name,
+            training_type=public_training.training_type,
+            training_duration=public_training.training_duration,
+            training_calories=public_training.training_calories,
+            training_date=public_training.training_date,
+            goal=public_training.goal,
+            level=public_training.level,
+            profile=user_profile
         )
+        messages.success(request, "Training ajouté avec succès à votre profil.")
+
     return redirect('profile_info', pk=request.user.profile.pk)  # ou autre URL

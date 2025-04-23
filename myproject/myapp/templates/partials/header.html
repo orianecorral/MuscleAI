@@ -24,50 +24,37 @@
         </a>
         {% endif %}
 
-        <!-- Authentification -->
-<!-- Authentification -->
-{% if user.is_authenticated and user.profile %}
-  <a
-    href="{% url 'profile_info' user.profile.id %}"
-    class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
-  >
-    Mon profil ({{ user.username }})
-  </a>
-  <a
-    href="{% url 'logout' %}"
-    class="bg-gray-700 text-white px-4 py-2 rounded hover:bg-gray-600 transition"
-  >
-    Déconnexion
-  </a>
-{% else %}
-  <a
-    href="{% url 'login' %}"
-    class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
-  >
-    Connexion
-  </a>
-{% endif %}
-
+        {% if user.is_authenticated and user.profile %}
+          <a
+            href="{% url 'profile_info' user.profile.uuid %}"
+            class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
+          >
+            Mon profil ({{ user.username }})
+          </a>
+          <a
+            href="{% url 'logout' %}"
+            class="bg-gray-700 text-white px-4 py-2 rounded hover:bg-gray-600 transition"
+          >
+            Déconnexion
+          </a>
+        {% else %}
+          <a
+            href="{% url 'login' %}"
+            class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+          >
+            Connexion
+          </a>
+        {% endif %}
 
         <!-- Notifications -->
         <button type="button" class="relative text-gray-400 hover:text-white">
           <span class="sr-only">Voir les notifications</span>
-          <svg
-            class="w-6 h-6"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="1.5"
-              d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022 23.848 23.848 0 005.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"
-            />
+          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+              d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022 23.848 23.848 0 005.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
           </svg>
         </button>
 
-        <!-- Avatar (optionnel si pas connecté) -->
         {% if user.is_authenticated %}
         <div class="relative">
           <button type="button" class="flex rounded-full">

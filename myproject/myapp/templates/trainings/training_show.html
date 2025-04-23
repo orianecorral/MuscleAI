@@ -33,18 +33,22 @@
           >
             Voir le programme →
           </a>
-
           {% if user.is_authenticated %}
-            <form method="post" action="{% url 'add_training_to_profile' training.id %}">
-              {% csrf_token %}
-              <button
-                type="submit"
-                class="inline-block mt-2 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition font-medium"
-              >
-                ➕ Ajouter à mon profil
-              </button>
-            </form>
-          {% endif %}
+  {% if training.training_name in user_training_names %}
+    <p class="text-green-600 font-semibold">✅ Déjà ajouté à mes trainings</p>
+  {% else %}
+    <form method="post" action="{% url 'add_training_to_profile' training.id %}">
+      {% csrf_token %}
+      <button
+        type="submit"
+        class="inline-block mt-2 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition font-medium"
+      >
+        ➕ Ajouter à mon profil
+      </button>
+    </form>
+  {% endif %}
+{% endif %}
+
         </div>
       </div>
     {% endwith %}
