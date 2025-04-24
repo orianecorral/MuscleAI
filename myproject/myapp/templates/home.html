@@ -38,6 +38,57 @@
   Votre assistant intelligent pour booster vos performances en musculation.
 </p>
 
+<!-- ✅ Barre de recherche -->
+<form method="POST" class="mb-10" autocomplete="off">
+  {% csrf_token %}
+  <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl shadow-lg p-6 max-w-4xl mx-auto text-white">
+
+    <!-- Recherche principale -->
+    <div class="mb-6">
+      <label for="recherche" class="block text-sm mb-2 font-semibold">🔎 Rechercher un training</label>
+      <div class="flex flex-col sm:flex-row sm:items-center gap-2">
+        <input type="text" name="recherche" id="recherche"
+          placeholder="Bench press, HIIT, Fullbody..."
+          class="flex-1 px-4 py-2 bg-white/20 border border-gray-500 placeholder-white/60 text-white rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+          value="{{ recherche|default:'' }}" />
+        <button type="submit"
+          class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg transition font-semibold">
+          Rechercher
+        </button>
+      </div>
+    </div>
+
+    <!-- Filtres type -->
+    <div class="mb-4">
+      <h3 class="text-sm font-semibold mb-2 text-white/90">🎯 Type d'entraînement</h3>
+      <div class="flex flex-wrap gap-3">
+        {% for value, label in types_list %}
+          <label class="inline-flex items-center text-sm">
+            <input type="checkbox" name="types" value="{{ value }}" class="form-checkbox text-red-600"
+              {% if value in selected_types %}checked{% endif %}>
+            <span class="ml-2">{{ label }}</span>
+          </label>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Filtres niveau -->
+    <div class="mb-2">
+      <h3 class="text-sm font-semibold mb-2 text-white/90">📈 Niveau</h3>
+      <div class="flex flex-wrap gap-3">
+        {% for value, label in levels_list %}
+          <label class="inline-flex items-center text-sm">
+            <input type="checkbox" name="levels" value="{{ value }}" class="form-checkbox text-red-600"
+              {% if value in selected_levels %}checked{% endif %}>
+            <span class="ml-2">{{ label }}</span>
+          </label>
+        {% endfor %}
+      </div>
+    </div>
+
+  </div>
+</form>
+
 <!-- ✅ Carousel -->
 <div class="mb-16 fade-in" style="animation-delay: 0.4s;">
   <h2 class="text-2xl text-white font-bold mb-4">🔥 Programmes populaires</h2>
@@ -84,39 +135,24 @@
   {% endif %}
 </div>
 
-<!-- ✅ Barre de recherche -->
-<form method="POST" class="text-white mb-10" autocomplete="off">
-  {% csrf_token %}
-  <div class="mb-4">
-    <input type="text" name="recherche" placeholder="Rechercher un training..."
-      class="w-full p-2 rounded bg-gray-900 border border-gray-700 text-white placeholder-gray-400"
-      value="{{ recherche|default:'' }}" />
-    <button type="submit"
-      class="w-full mt-2 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded transition">Rechercher</button>
-  </div>
 
-  <div class="mb-4">
-    <h3 class="font-semibold mb-2">Type d'entraînement</h3>
-    {% for value, label in types_list %}
-      <label class="inline-flex items-center mr-3 mb-2">
-        <input type="checkbox" name="types" value="{{ value }}" class="form-checkbox text-red-600"
-          {% if value in selected_types %}checked{% endif %}>
-        <span class="ml-2">{{ label }}</span>
-      </label>
+<div class="mt-16 fade-in" style="animation-delay: 0.5s;">
+  <h2 class="text-2xl text-white font-bold mb-4">🏆 Challenges en cours</h2>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for challenge in challenges %}
+      <div class="bg-white rounded-xl overflow-hidden shadow-md border text-black p-4 card-hover">
+        <h3 class="text-lg font-bold mb-2">{{ challenge.name }}</h3>
+        <p class="text-sm text-gray-700 mb-1">{{ challenge.description|truncatewords:15 }}</p>
+        <p class="text-xs text-gray-500 mb-2">📅 Du {{ challenge.start_date }} au {{ challenge.end_date }}</p>
+        <p class="text-xs text-gray-500 mb-2">👥 {{ challenge.participants.count }} participant·e·s</p>
+        <a href="{% url 'challenge_info' challenge.pk %}" class="text-indigo-600 text-sm font-medium">Voir challenge →</a>
+      </div>
+    {% empty %}
+      <p class="text-white">Aucun challenge pour le moment.</p>
     {% endfor %}
   </div>
+</div>
 
-  <div class="mb-4">
-    <h3 class="font-semibold mb-2">Niveau</h3>
-    {% for value, label in levels_list %}
-      <label class="inline-flex items-center mr-3 mb-2">
-        <input type="checkbox" name="levels" value="{{ value }}" class="form-checkbox text-red-600"
-          {% if value in selected_levels %}checked{% endif %}>
-        <span class="ml-2">{{ label }}</span>
-      </label>
-    {% endfor %}
-  </div>
-</form>
 
 <!-- ✅ Floating Action Button -->
 <button id="openCalculator"

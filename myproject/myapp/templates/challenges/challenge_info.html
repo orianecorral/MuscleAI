@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-10 fade-in">
+  <div class="bg-white rounded-xl shadow-lg p-6 max-w-3xl mx-auto text-gray-800">
+    <h1 class="text-2xl font-bold mb-4">{{ challenge.name }}</h1>
+    <p class="text-sm text-gray-600 mb-4">📅 From <strong>{{ challenge.start_date }}</strong> to <strong>{{ challenge.end_date }}</strong></p>
+    <p class="text-gray-700 mb-6">{{ challenge.description }}</p>
+
+    <!-- Participants -->
+    <div class="mb-6">
+      <h2 class="text-lg font-semibold mb-2">👥 Participants ({{ challenge.participants.count }})</h2>
+      <ul class="list-disc list-inside text-sm text-gray-700">
+        {% for user in challenge.participants.all %}
+          <li>{{ user.username }}</li>
+        {% empty %}
+          <li>No participants yet.</li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <!-- Classement -->
+    {% if challenge.classement %}
+    <div class="mt-6">
+      <h2 class="text-lg font-semibold mb-2">🏅 Ranking</h2>
+      <div class="bg-gray-100 border rounded p-4 text-sm font-mono whitespace-pre-wrap">
+        {% for position, username in challenge.classement.items %}
+          {{ position }}. {{ username }}
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Join button -->
+    {% if user.is_authenticated and user not in challenge.participants.all %}
+    <div class="mt-6 text-center">
+      <a href="{% url 'join_challenge' challenge.pk %}" 
+         class="inline-block bg-indigo-600 text-white font-semibold px-6 py-2 rounded hover:bg-indigo-700 transition shadow">
+        Join this challenge
+      </a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

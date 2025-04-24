@@ -9,7 +9,7 @@ def redirect_root(request):
 
 urlpatterns = [
     # Profils
-    path('me/', views.my_profile_view, name='my_profile'),
+    path('me/', views.profile_info_view, name='my_profile'),
     path('create/', views.profile_create_view, name='profile_create'),
     path('<uuid:uuid>/', views.profile_info_view, name='profile_info'),
     path('update/<uuid:uuid>/', views.profile_update, name='profile_update'),
@@ -20,6 +20,14 @@ urlpatterns = [
     path('friend-request/send/<uuid:uuid>/', views.send_friend_request, name='send_friend_request'),
     path('friend-request/accept/<int:pk>/', views.accept_friend_request, name='accept_friend_request'),
     path('friend-request/reject/<int:pk>/', views.reject_friend_request, name='reject_friend_request'),
+
+    #Coach
+    path('coaches/', views.coach_list, name='coach_list'),
+    path('coaches/<int:pk>/', views.coach_detail, name='coach_detail'),
+    path('coaches/create/', views.coach_create, name='coach_create'),
+    path('coaches/<int:pk>/edit/', views.coach_update, name='coach_update'),
+    path('coaches/<int:pk>/delete/', views.coach_delete, name='coach_delete'),
+
 
     # Trainings
     path('training/<int:pk>/', views.training_info, name='training_info'),
@@ -41,6 +49,12 @@ urlpatterns = [
     # Auth
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
+
+    # Challenge
+    path('challenges/', views.show_challenges, name='show_challenges'),
+    path('challenges/<int:pk>/', views.challenge_info, name='challenge_info'),
+    path('challenges/<int:pk>/join/', views.join_challenge, name='join_challenge'),
+
 
     # Homepage
     path('', views.homepage, name='homepage'),

@@ -12,7 +12,7 @@ from myapp.features.calories import calculate_bmr, calculate_tdee
 from myapp.features.combined import run_all_calculations
 from myapp.features.protein import protein_intake
 from myapp.features.weights import calculate_percentage_load
-from .models import FriendRequest, Profile, Training
+from .models import FriendRequest, Profile, Training, Challenge
 from .forms import CustomUserCreationForm, ProfileForm, TrainingForm
 from django.contrib.auth.forms import UserCreationForm
 
@@ -34,6 +34,8 @@ def homepage(request):
     # 🎯 Séparation des données
     public_trainings = Training.objects.filter(profile__isnull=True)
     user_trainings = Training.objects.filter(profile=request.user.profile)
+    challenges = Challenge.objects.order_by('-start_date')[:5]
+
 
     recherche = ''
     selected_types = []
@@ -99,22 +101,22 @@ def homepage(request):
         'levels_list': levels_list,
         'result': result,
         'error_message': error_message,
+        "challenges": challenges,
+
     })
 # ===================== Profils =====================
-@login_required
-def my_profile_view(request):
-    profile = request.user.profile
-    return redirect('profile_info', uuid=profile.uuid)
-
 @login_required
 def profile_info_view(request, uuid):
     profile = get_object_or_404(Profile, uuid=uuid)
     is_own_profile = request.user.profile.uuid == profile.uuid
 
     trainings = Training.objects.filter(profile=profile)
-
     received_requests = FriendRequest.objects.filter(to_user=request.user, status='pending') if is_own_profile else None
     sent_requests = FriendRequest.objects.filter(from_user=request.user, status='pending') if is_own_profile else None
+
+    # Récupère les challenges auxquels le user (du profil) participe
+    user = profile.user
+    joined_challenges = Challenge.objects.filter(participants=user).order_by('-start_date')
 
     context = {
         'profile': profile,
@@ -122,6 +124,7 @@ def profile_info_view(request, uuid):
         'received_requests': received_requests,
         'sent_requests': sent_requests,
         'is_own_profile': is_own_profile,
+        'joined_challenges': joined_challenges,  # 👈 ajouté ici
     }
     return render(request, 'profiles/profile_info.html', context)
 
@@ -459,3 +462,70 @@ def add_training_to_profile(request, training_id):
         messages.success(request, "Training ajouté avec succès à votre profil.")
 
     return redirect('profile_info', pk=request.user.profile.pk)  # ou autre URL
+
+# ===================== Challenges =====================
+def show_challenges(request):
+    challenges = Challenge.objects.all().order_by('-start_date')
+    return render(request, 'challenges/challenge_show.html', {'challenges': challenges})
+
+def challenge_info(request, pk):
+    challenge = get_object_or_404(Challenge, pk=pk)
+    return render(request, 'challenges/challenge_info.html', {'challenge': challenge})
+
+@login_required
+def join_challenge(request, pk):
+    challenge = get_object_or_404(Challenge, pk=pk)
+    if request.user not in challenge.participants.all():
+        challenge.participants.add(request.user)
+    return redirect('challenge_info', pk=pk)
+
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import Coach
+from .forms import CoachForm
+from django.contrib.auth.decorators import login_required
+
+
+@login_required
+def coach_list(request):
+    coaches = Coach.objects.all()
+    return render(request, 'coach/coach_list.html', {'coaches': coaches})
+
+
+@login_required
+def coach_detail(request, pk):
+    coach = get_object_or_404(Coach, pk=pk)
+    return render(request, 'coach/coach_detail.html', {'coach': coach})
+
+
+@login_required
+def coach_create(request):
+    if request.method == 'POST':
+        form = CoachForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('coach_list')
+    else:
+        form = CoachForm()
+    return render(request, 'coach/coach_form.html', {'form': form})
+
+
+@login_required
+def coach_update(request, pk):
+    coach = get_object_or_404(Coach, pk=pk)
+    if request.method == 'POST':
+        form = CoachForm(request.POST, instance=coach)
+        if form.is_valid():
+            form.save()
+            return redirect('coach_detail', pk=pk)
+    else:
+        form = CoachForm(instance=coach)
+    return render(request, 'coach/coach_form.html', {'form': form})
+
+
+@login_required
+def coach_delete(request, pk):
+    coach = get_object_or_404(Coach, pk=pk)
+    if request.method == 'POST':
+        coach.delete()
+        return redirect('coach_list')
+    return render(request, 'coach/coach_confirm_delete.html', {'coach': coach})

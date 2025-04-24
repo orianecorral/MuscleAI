@@ -2,7 +2,7 @@ from django import forms
 from django.forms import ModelForm
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import get_user_model
-from .models import Profile, Training
+from .models import Coach, Profile, Training
 
 User = get_user_model()
 
@@ -105,3 +105,8 @@ class TrainingForm(forms.ModelForm):
                 'class': 'w-full p-2 rounded bg-black border border-gray-700 text-white'
             }),
         }
+
+class CoachForm(forms.ModelForm):
+    class Meta:
+        model = Coach
+        fields = ['user', 'specialties', 'name', 'experience_years']

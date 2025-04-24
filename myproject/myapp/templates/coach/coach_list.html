@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}Liste des Coachs - MuscleAI{% endblock %}
+
+{% block content %}
+<h1 class="text-4xl font-bold text-white mb-4">Liste des Coachs</h1>
+<p class="text-lg text-gray-300">Découvrez les coachs disponibles sur MuscleAI.</p>
+
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
+  {% for coach in coaches %}
+    <div class="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition border border-gray-200 text-black">
+      <div class="p-4 space-y-2">
+        <h3 class="text-lg font-semibold">{{ coach.name }}</h3>
+        <div class="text-sm text-gray-600">
+          <p>📧 {{ coach.user.email }}</p>
+          <p>🧠 Spécialités : {{ coach.specialties }}</p>
+          <p>🎓 Expérience : {{ coach.experience_years }} ans</p>
+        </div>
+
+        <a
+          href="{% url 'coach_detail' coach.pk %}"
+          class="inline-block mt-3 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition font-medium"
+        >
+          Voir le profil →
+        </a>
+      </div>
+    </div>
+  {% empty %}
+    <p class="text-gray-400">Aucun coach disponible pour le moment.</p>
+  {% endfor %}
+</div>
+{% endblock %}

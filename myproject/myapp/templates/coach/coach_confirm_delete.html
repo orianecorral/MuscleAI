@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h2>Supprimer {{ coach.name }} ?</h2>
+  <p>Cette action est irréversible.</p>
+
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit">🗑️ Confirmer la suppression</button>
+  </form>
+
+  <a href="{% url 'coach_detail' coach.pk %}">⬅️ Annuler</a>
+{% endblock %}
