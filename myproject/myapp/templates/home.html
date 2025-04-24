@@ -44,8 +44,8 @@
   <div class="swiper mySwiper">
     <div class="swiper-wrapper">
       {% for item in training_data|slice:":10" %}
-        <div class="swiper-slide">
-          <div class="bg-white rounded-xl overflow-hidden shadow-md border text-black max-w-xs mx-auto card-hover">
+        <div class="swiper-slide" style="width: auto;">
+          <div class="bg-white rounded-xl overflow-hidden shadow-md border text-black w-full card-hover">
             <img src="{% static item.image %}" alt="{{ item.training.training_name }}" class="h-48 w-full object-cover" />
             <div class="p-4">
               <h3 class="text-lg font-semibold truncate">{{ item.training.training_name }}</h3>
@@ -61,6 +61,7 @@
     <div class="swiper-button-next"></div>
     <div class="swiper-button-prev"></div>
   </div>
+
   {% if user_trainings %}
   <div class="mt-12 fade-in" style="animation-delay: 0.6s;">
     <h2 class="text-2xl text-white font-bold mb-4">📌 Mes entraînements ajoutés</h2>
@@ -80,7 +81,7 @@
       {% endfor %}
     </div>
   </div>
-{% endif %}
+  {% endif %}
 </div>
 
 <!-- ✅ Barre de recherche -->
@@ -203,19 +204,14 @@
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script>
   const swiper = new Swiper(".mySwiper", {
-    slidesPerView: 1.1,
+    slidesPerView: 'auto',
+    centeredSlides: false,
     spaceBetween: 20,
-    breakpoints: {
-      640: { slidesPerView: 1.5 },
-      768: { slidesPerView: 2.5 },
-      1024: { slidesPerView: 3.5 },
-      1280: { slidesPerView: 4.5 },
-    },
     navigation: {
       nextEl: ".swiper-button-next",
       prevEl: ".swiper-button-prev",
     },
-    loop: true,
+    loop: false,
     grabCursor: true,
   });
 

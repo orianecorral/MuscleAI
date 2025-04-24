@@ -27,12 +27,16 @@ urlpatterns = [
     path('training/update/<int:pk>/', views.training_update, name='training_update'),
     path('training/delete/<int:pk>/', views.training_delete, name='training_delete'),
     path('trainings/', views.training_show, name='training_show'),
+    path('training/add/<int:training_id>/', views.add_training_to_profile, name='add_training_to_profile'),
+
 
     # Calculators
     path('calculator/bmi/', views.bmi_view, name='bmi_calculator'),
     path('calculator/protein/', views.protein_view, name='protein_calculator'),
     path('calculator/calories/', views.calories_view, name='calories_calculator'),
     path('calculator/combined/', views.combined_view, name='combined_calculator'),
+    path('charges/', views.weights_view, name='weights'),
+
 
     # Auth
     path('login/', views.login_view, name='login'),

@@ -11,6 +11,7 @@ from myapp.features.bmi import bmi_category, calculate_bmi
 from myapp.features.calories import calculate_bmr, calculate_tdee
 from myapp.features.combined import run_all_calculations
 from myapp.features.protein import protein_intake
+from myapp.features.weights import calculate_percentage_load
 from .models import FriendRequest, Profile, Training
 from .forms import CustomUserCreationForm, ProfileForm, TrainingForm
 from django.contrib.auth.forms import UserCreationForm
@@ -366,6 +367,24 @@ def combined_view(request):
             error_message = f"Erreur dans le formulaire : {str(e)}"
 
     return render(request, 'calculators/combined.html', {
+        'result': result,
+        'error_message': error_message
+    })
+
+def weights_view(request):
+    result = None
+    error_message = None
+
+    if request.method == 'POST':
+        try:
+            pr = float(request.POST.get('pr'))
+            percent = float(request.POST.get('percentage'))
+
+            result = calculate_percentage_load(pr, percent)
+        except (ValueError, TypeError) as e:
+            error_message = f"Erreur : {str(e)}"
+
+    return render(request, 'calculators/weights.html', {
         'result': result,
         'error_message': error_message
     })
