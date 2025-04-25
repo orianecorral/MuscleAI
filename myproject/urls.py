@@ -58,4 +58,6 @@ urlpatterns = [
 
     # Homepage
     path('', views.homepage, name='homepage'),
+    path('homepage/', views.homepage, name='homepage_alias'),
+
 ]

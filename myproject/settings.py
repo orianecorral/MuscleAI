@@ -81,7 +81,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'muscleai_db',
         'USER': 'muscleai_user',
-        'PASSWORD': 'muscleai_password',
+        'PASSWORD': 'motdepassefort',
         'HOST': 'localhost',
         'PORT': '5432',
     }

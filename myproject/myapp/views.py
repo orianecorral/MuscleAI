@@ -29,7 +29,6 @@ def profile_by_uuid(request, uuid):
 
 
 # ===================== Pages Générales =====================
-@login_required
 def homepage(request):
     # 🎯 Séparation des données
     public_trainings = Training.objects.filter(profile__isnull=True)
